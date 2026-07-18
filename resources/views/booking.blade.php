@@ -64,50 +64,55 @@
         </div>
     </div>
 
-    <script>
-        async function updateSlots() {
-            const clinic = document.getElementById('clinic').value;
-            const date = document.querySelector('input[name="appointment_date"]').value;
-            const timeSelect = document.getElementById('appointment_time');
+<script>
+    async function updateSlots() {
+        const clinic = document.getElementById('clinic').value;
+        const date = document.querySelector('input[name="appointment_date"]').value;
+        const timeSelect = document.getElementById('appointment_time');
 
-            if (!clinic || !date) return;
+        if (!clinic || !date) return;
 
-            const response = await fetch(`/get-booked-slots?clinic=${clinic}&date=${date}`);
-            const bookedSlots = await response.json();
+        // طلب البيانات من المسار الذي أضفناه
+        const response = await fetch(`/get-booked-slots?clinic=${clinic}&date=${date}`);
+        const bookedSlots = await response.json(); // ستكون مصفوفة أوقات مثل ["22:00", "22:10"]
 
-            let startHour, startMinute, endHour, endMinute;
-            if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
-            else if (clinic === 'المنشأة الكبرى') { startHour = 19; startMinute = 30; endHour = 21; endMinute = 30; }
-            else if (clinic === 'التمساحية') { startHour = 22; startMinute = 0; endHour = 0; endMinute = 0; }
-            else return;
+        let startHour, startMinute, endHour, endMinute;
+        if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
+        else if (clinic === 'المنشأة الكبرى') { startHour = 19; startMinute = 30; endHour = 21; endMinute = 30; }
+        else if (clinic === 'التمساحية') { startHour = 22; startMinute = 0; endHour = 0; endMinute = 0; }
+        else return;
 
-            timeSelect.innerHTML = '<option value="">اختر الوقت</option>';
-            let currentHour = startHour;
-            let currentMinute = startMinute;
+        timeSelect.innerHTML = '<option value="">اختر الوقت</option>';
+        let currentHour = startHour;
+        let currentMinute = startMinute;
 
-            while (true) {
-                if (currentHour === endHour && currentMinute >= endMinute && endHour !== 0) break;
-                if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break;
+        while (true) {
+            // شرط التوقف للعيادات العادية والتمساحية
+            if (endHour !== 0 && (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute))) break;
+            if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break; 
 
-                let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
-                let fullDateTimeString = date + ' ' + timeString + ':00';
+            let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
 
-                let option = document.createElement('option');
-                option.value = timeString;
-                option.text = timeString;
+            let option = document.createElement('option');
+            option.value = timeString;
+            option.text = timeString;
 
-                if (bookedSlots.includes(fullDateTimeString)) {
-                    option.disabled = true;
-                    option.text += ' (محجوز)';
-                }
-                timeSelect.appendChild(option);
-
-                currentMinute += 10;
-                if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
-                if (currentHour >= 24) currentHour = 0;
+            // هنا المقارنة الصحيحة: نقارن الوقت فقط (timeString) بما رجع من السيرفر
+            if (bookedSlots.includes(timeString)) {
+                option.disabled = true;
+                option.text += ' (محجوز)';
             }
+            timeSelect.appendChild(option);
+
+            currentMinute += 10;
+            if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
+            if (currentHour >= 24) currentHour = 0;
         }
-        document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
-    </script>
+    }
+    
+    // ربط الأحداث
+    document.getElementById('clinic').addEventListener('change', updateSlots);
+    document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+</script>
 </body>
 </html>

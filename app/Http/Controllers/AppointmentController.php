@@ -37,13 +37,15 @@ class AppointmentController extends Controller
         return view('booking'); // تأكد أن ملف صفحة الحجز لديك اسمه booking.blade.php وموجود في مجلد resources/views
     }
     
-    public function getBookedSlots(Request $request)
-    {
-        return Appointment::where('clinic', $request->clinic)
-                          ->where('date_time', 'like', $request->date . '%')
-                          ->pluck('date_time');
-    }
-    
+   public function getBookedSlots(Request $request)
+{
+    return Appointment::where('clinic', $request->clinic)
+                      ->where('date_time', 'like', $request->date . '%')
+                      ->get()
+                      ->map(function($appointment) {
+                          return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
+                      });
+}
 
     public function store(Request $request)
     {
