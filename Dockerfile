@@ -1,5 +1,4 @@
-FROM php:8.2-apache
-
+FROM php:8.3-apache
 # تثبيت الحزم المطلوبة
 RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip \
     && docker-php-ext-install pdo_mysql gd zip \
@@ -13,8 +12,7 @@ WORKDIR /var/www/html
 
 # نسخ ملفات التعريف فقط أولاً لتسريع البناء وتثبيت المكتبات
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts
 # نسخ باقي ملفات المشروع
 COPY . .
 
