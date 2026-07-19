@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\URL; // أضف هذا السطر هنا
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,7 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // أضف هذا الجزء لإجبار الموقع على استخدام HTTPS
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }

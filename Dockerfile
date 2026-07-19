@@ -14,8 +14,8 @@ RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --n
 
 # إضافة خطوة بناء ملفات Vite
 COPY package.json package-lock.json ./
-RUN npm install && npm run build
-
+# بدلاً من npm run build، نعتمد على الملفات الموجودة بالفعل
+RUN npm install
 COPY . .
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 

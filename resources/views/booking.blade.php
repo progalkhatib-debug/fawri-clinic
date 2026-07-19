@@ -41,7 +41,10 @@
                 </div>
             @endif
 
-            <form action="{{ route('booking.store') }}" method="POST" class="space-y-4">
+            <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-4">
+    @csrf
+    <!-- باقي الحقول كما هي -->
+</form>
                 @csrf
                 <input type="text" name="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
                 <input type="text" name="phone" placeholder="رقم الهاتف" required class="w-full p-3 border rounded-lg">
@@ -63,8 +66,8 @@
             </form>
         </div>
     </div>
-
 <script>
+    // [وظيفة updateSlots الحالية الخاصة بك تبقى كما هي هنا دون تغيير]
     async function updateSlots() {
         const clinic = document.getElementById('clinic').value;
         const date = document.querySelector('input[name="appointment_date"]').value;
@@ -72,9 +75,8 @@
 
         if (!clinic || !date) return;
 
-        // طلب البيانات من المسار الذي أضفناه
-        const response = await fetch(`/get-booked-slots?clinic=${clinic}&date=${date}`);
-        const bookedSlots = await response.json(); // ستكون مصفوفة أوقات مثل ["22:00", "22:10"]
+        const response = await fetch(window.location.origin + `/get-booked-slots?clinic=${clinic}&date=${date}`);
+        const bookedSlots = await response.json();
 
         let startHour, startMinute, endHour, endMinute;
         if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
@@ -87,17 +89,14 @@
         let currentMinute = startMinute;
 
         while (true) {
-            // شرط التوقف للعيادات العادية والتمساحية
             if (endHour !== 0 && (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute))) break;
             if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break; 
 
             let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
-
             let option = document.createElement('option');
             option.value = timeString;
             option.text = timeString;
 
-            // هنا المقارنة الصحيحة: نقارن الوقت فقط (timeString) بما رجع من السيرفر
             if (bookedSlots.includes(timeString)) {
                 option.disabled = true;
                 option.text += ' (محجوز)';
@@ -109,8 +108,26 @@
             if (currentHour >= 24) currentHour = 0;
         }
     }
-    
-    // ربط الأحداث
+
+    // [إضافة كود الإرسال الآمن هنا]
+    document.querySelector('form').addEventListener('submit', async function(e) {
+        e.preventDefault(); // يمنع المتصفح من الخروج من الصفحة
+        const formData = new FormData(this);
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+
+        if (response.ok) {
+            alert('تم الحجز بنجاح!');
+            this.reset();
+            updateSlots();
+        } else {
+            alert('حدث خطأ، يرجى المحاولة مرة أخرى.');
+        }
+    });
+
     document.getElementById('clinic').addEventListener('change', updateSlots);
     document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
 </script>
