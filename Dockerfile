@@ -24,6 +24,3 @@ COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 # ضبط الصلاحيات
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# إضافة أمر تشغيل المهاجرات عند بدء الحاوية
-# ملاحظة: هذا الأمر سيتم تنفيذه عند بناء الحاوية
-RUN php artisan migrate --force
