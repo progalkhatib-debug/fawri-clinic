@@ -21,6 +21,6 @@ COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # ... (باقي الأسطر السابقة كما هي)
 
-# ضبط الصلاحيات
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
+# تغيير ملكية المجلدات وصلاحيات الوصول
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
