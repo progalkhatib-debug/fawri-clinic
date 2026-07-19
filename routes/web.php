@@ -34,20 +34,13 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
-Route::get('lang/{lang}', function ($lang) {
-    if (in_array($lang, ['ar', 'en'])) {
-        session(['applocale' => $lang]);
-    }
-    return back();
-})->name('lang.switch');
+require __DIR__.'/auth.php';
 
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Session;
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['ar', 'en'])) {
-        Session::put('locale', $locale);
+        session(['locale' => $locale]);
     }
-    return redirect()->back();
+    return redirect()->back(); // هذا سيعيد تحميل الصفحة فوراً
 })->name('lang.switch');

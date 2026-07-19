@@ -3,5 +3,6 @@
     "Password": "Password",
     "Remember me": "Remember me",
     "Forgot your password?": "Forgot your password?",
-    "Log in": "Log in"
+    "Log in": "Log in",
+    "These credentials do not match our records.": "These credentials do not match our records."
 }

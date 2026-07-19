@@ -15,7 +15,7 @@
 <div class="flex items-center gap-4">
     <!-- اسم الدكتور -->
     <span class="font-bold text-blue-900">
-        {{ app()->getLocale() == 'en' ? 'Dr. Amr' : 'د. عمرو' }}
+        {{ app()->getLocale() == 'en' ? 'Dr/ Amr' : 'د/ عمرو' }}
     </span>
 
     <!-- صورة الدكتور وزر الرفع -->
@@ -80,63 +80,72 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y">
-                    @foreach($appointments as $appointment)
-                    <tr class="{{ $appointment->status == 'completed' ? 'bg-green-50' : 'bg-yellow-50' }}">
-                        <td class="p-4">{{ $appointment->patient_name }}</td>
-                        <td class="p-4">{{ $appointment->phone }}</td>
-                        <td class="p-4">
-    @if(app()->getLocale() == 'en')
-        {{ [
-            'التمساحية' => 'El-Temsahia',
-            'القوصية' => 'El-Qusiya',
-            'المنشأة الكبرى' => 'El-Manshaa'
-        ][$appointment->clinic] ?? $appointment->clinic }}
-    @else
-        {{ $appointment->clinic }}
-    @endif
-</td>
-                        <td class="p-4" dir="ltr">{{ $appointment->date_time }}</td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded text-xs font-bold {{ $appointment->status == 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800' }}">
-                                {{ $appointment->status == 'completed' ? (app()->getLocale() == 'en' ? 'Completed' : 'مكتمل') : (app()->getLocale() == 'en' ? 'Pending' : 'قيد الانتظار') }}
-                            </span>
-                        </td>
-                        <td class="p-4 flex gap-2">
-                            <a href="{{ route('appointments.edit', $appointment->id) }}" class="bg-green-500 text-white px-3 py-1 rounded text-sm">
-                                {{ app()->getLocale() == 'en' ? 'Edit' : 'سجل' }}
-                            </a>
-                            <a href="{{ route('appointments.print', $appointment->id) }}" class="bg-blue-500 text-white px-3 py-1 rounded text-sm" target="_blank">
-                                {{ app()->getLocale() == 'en' ? 'Print' : 'طباعة' }}
-                            </a>
-                            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-sm">
-                                    {{ app()->getLocale() == 'en' ? 'Delete' : 'حذف' }}
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <script>
+    @foreach($appointments as $appointment)
+    <tr class="{{ $appointment->status == 'completed' ? 'bg-green-50' : 'bg-yellow-50' }}">
+        <td class="p-4 font-medium text-gray-900">{{ $appointment->patient_name }}</td>
+        <td class="p-4">{{ $appointment->phone }}</td>
+        
+        <!-- العيادة -->
+        <td class="p-4">
+            @if(app()->getLocale() == 'en')
+                {{ [
+                    'التمساحية' => 'El-Temsahia',
+                    'القوصية' => 'El-Qusiya',
+                    'المنشأة الكبرى' => 'El-Manshaa'
+                ][$appointment->clinic] ?? $appointment->clinic }}
+            @else
+                {{ $appointment->clinic }}
+            @endif
+        </td>
+
+        <td class="p-4" dir="ltr">{{ $appointment->date_time }}</td>
+        
+        <!-- الحالة -->
+        <td class="p-4">
+            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
+                {{ $appointment->status == 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800' }}">
+                {{ $appointment->status == 'completed' 
+                    ? (app()->getLocale() == 'en' ? 'Completed' : 'مكتمل') 
+                    : (app()->getLocale() == 'en' ? 'Pending' : 'قيد الانتظار') }}
+            </span>
+        </td>
+
+        <!-- الإجراءات -->
+        <td class="p-4 flex gap-2">
+            <a href="{{ route('appointments.edit', $appointment->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
+                {{ app()->getLocale() == 'en' ? 'Edit' : 'سجل' }}
+            </a>
+            <a href="{{ route('appointments.print', $appointment->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" target="_blank">
+                {{ app()->getLocale() == 'en' ? 'Print' : 'طباعة' }}
+            </a>
+            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد؟')">
+                @csrf @method('DELETE')
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
+                    {{ app()->getLocale() == 'en' ? 'Delete' : 'حذف' }}
+                </button>
+            </form>
+        </td>
+    </tr>
+    @endforeach
+</tbody>
+</table>
+</div>
+</div>
+
+<script>
     function uploadImage(input) {
         if (input.files && input.files[0]) {
             let formData = new FormData();
             formData.append('image', input.files[0]);
-            // إضافة توكن الحماية الخاص بـ Laravel
             formData.append('_token', '{{ csrf_token() }}');
 
-            // تأكد أن هذا الرابط هو نفسه الموجود في ملف routes/web.php
             fetch('/admin/upload-image', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                location.reload(); // تحديث الصفحة لتظهر الصورة الجديدة
+                location.reload();
             })
             .catch(error => {
                 console.error('Error:', error);

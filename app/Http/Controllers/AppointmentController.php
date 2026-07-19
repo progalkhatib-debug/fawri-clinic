@@ -110,18 +110,25 @@ class AppointmentController extends Controller
         $appointment = Appointment::findOrFail($id);
         return view('admin.edit', compact('appointment')); 
     }
-   public function update(Request $request, int $id)
+    
+  public function update(Request $request, int $id)
 {
     $appointment = Appointment::findOrFail($id);
-    
+
+    // التحقق من وجود بيانات
+    $request->validate([
+        'diagnosis' => 'required', // تأكد أنها مطلوبة لضمان وجود تقرير
+        'treatment' => 'required',
+    ]);
+
+    // التحديث مع تغيير الحالة تلقائياً
     $appointment->update([
         'diagnosis' => $request->diagnosis,
         'treatment' => $request->treatment,
-        'status' => $request->status, // أضف هذا السطر لحفظ الحالة
+        'status' => 'completed', // هنا نجبر الحالة على التحول لمكتمل عند الحفظ
     ]);
 
-return redirect('/admin')->with('success', 'تم تحديث السجل الطبي بنجاح');
-}
+return redirect()->route('admin.index')->with('success', 'تم حفظ الحالة بنجاح');}
 
 public function print(int $id)
 {

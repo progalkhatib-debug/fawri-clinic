@@ -9,17 +9,13 @@ use Illuminate\Support\Facades\Session;
 
 class SetLocale
 {
-    public function handle(Request $request, Closure $next)
-    {
-        // 1. إذا كانت اللغة مخزنة في الـ Session، نستخدمها
-        if (Session::has('locale')) {
-            App::setLocale(Session::get('locale'));
-        } 
-        // 2. إذا لم تكن موجودة، نستخدم القيمة الموجودة في config/app.php (التي هي 'ar' حالياً)
-        else {
-            App::setLocale(config('app.locale'));
-        }
-
-        return $next($request);
+public function handle(Request $request, Closure $next)
+{
+    // إذا كانت هناك لغة مخزنة في الجلسة، استخدمها فوراً وألغِ أي إعداد افتراضي
+    if (session()->has('locale')) {
+        app()->setLocale(session('locale'));
     }
+    
+    return $next($request);
+}
 }
