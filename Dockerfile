@@ -1,6 +1,8 @@
 FROM php:8.3-apache
 
-RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip \
+# إضافة Node.js للمشروع
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip nodejs \
     && docker-php-ext-install pdo_mysql gd zip \
     && a2enmod rewrite
 
@@ -9,6 +11,10 @@ WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
 RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-scripts
+
+# إضافة خطوة بناء ملفات Vite
+COPY package.json package-lock.json ./
+RUN npm install && npm run build
 
 COPY . .
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
@@ -19,8 +25,6 @@ RUN mkdir -p /var/www/html/database && \
     chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database && \
     chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
-# تشغيل المايجريشن أثناء البناء (بصيغة لا تسبب تعارض)
 RUN php artisan migrate --force || true
 
-# تحديد أمر التشغيل الافتراضي
 CMD ["apache2-foreground"]
