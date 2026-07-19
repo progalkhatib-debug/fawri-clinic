@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# تثبيت الحزم والمتطلبات
+# تثبيت الحزم المطلوبة
 RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip \
     && docker-php-ext-install pdo_mysql gd zip \
     && a2enmod rewrite
@@ -8,12 +8,15 @@ RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git u
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# إعداد ملفات المشروع
+# العمل من المجلد الرئيسي
 WORKDIR /var/www/html
-COPY . .
 
-# تثبيت المكتبات فوراً بعد نسخ الملفات
-RUN composer install --no-dev --optimize-autoloader
+# نسخ ملفات التعريف فقط أولاً لتسريع البناء وتثبيت المكتبات
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# نسخ باقي ملفات المشروع
+COPY . .
 
 # ضبط إعدادات Apache
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
