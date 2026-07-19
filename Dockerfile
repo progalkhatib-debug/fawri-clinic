@@ -1,25 +1,22 @@
 FROM php:8.2-apache
 
-# تثبيت الحزم المطلوبة
-RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip
+# تثبيت الحزم والمتطلبات
+RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip \
+    && docker-php-ext-install pdo_mysql gd zip \
+    && a2enmod rewrite
 
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# تثبيت امتدادات PHP
-RUN docker-php-ext-install pdo_mysql gd zip
+# إعداد ملفات المشروع
+WORKDIR /var/www/html
+COPY . .
 
-# تفعيل Rewrite Module
-RUN a2enmod rewrite
-
-# استبدال إعدادات Apache الافتراضية
-COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
-
-# نسخ ملفات المشروع
-COPY . /var/www/html
-
-# تثبيت مكتبات المشروع باستخدام composer
+# تثبيت المكتبات فوراً بعد نسخ الملفات
 RUN composer install --no-dev --optimize-autoloader
+
+# ضبط إعدادات Apache
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # ضبط الصلاحيات
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
