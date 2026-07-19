@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: fawri-clinic
+    runtime: php
+    buildCommand: "composer install && php artisan migrate --force"
+    startCommand: "apache2-foreground"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generate: true

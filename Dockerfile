@@ -9,11 +9,11 @@ RUN docker-php-ext-install pdo_mysql gd zip
 # تفعيل Rewrite Module
 RUN a2enmod rewrite
 
-# التعديل الأهم: تغيير DocumentRoot الخاص بـ Apache إلى مجلد public
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+# استبدال إعدادات Apache الافتراضية بملفنا المخصص
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # نسخ ملفات المشروع
 COPY . /var/www/html
 
-# ضبط الصلاحيات
-RUN chown -R www-data:www-data /var/www/html/storage
+# ضبط الصلاحيات للمجلدات التي يحتاجها Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
