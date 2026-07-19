@@ -46,14 +46,25 @@
 
 <script>
     async function updateSlots() {
-        const clinic = document.getElementById('clinic').value;
-        const date = document.querySelector('input[name="appointment_date"]').value;
-        const timeSelect = document.getElementById('appointment_time');
-        if (!clinic || !date) return;
+    const clinic = document.getElementById('clinic').value;
+    const date = document.querySelector('input[name="appointment_date"]').value;
+    const timeSelect = document.getElementById('appointment_time');
 
-// استبدل السطر القديم بهذا السطر بالضبط
-const response = await fetch(`/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`);
+    if (!clinic || !date) return;
 
+    // استخدام مسار كامل وثابت لضمان الوصول للسيرفر
+    const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
+    
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            console.error("خطأ في الاتصال بالسيرفر:", response.status);
+            return;
+        }
+
+        const bookedSlots = await response.json();
+        
         let startHour, startMinute, endHour, endMinute;
         if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
         else if (clinic === 'المنشأة الكبرى') { startHour = 19; startMinute = 30; endHour = 21; endMinute = 30; }
@@ -67,18 +78,30 @@ const response = await fetch(`/get-booked-slots?clinic=${encodeURIComponent(clin
         while (true) {
             if (endHour !== 0 && (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute))) break;
             if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break; 
+
             let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
+            
+            // تحقق إذا كان الوقت محجوزاً
+            let isBooked = Array.isArray(bookedSlots) && bookedSlots.includes(timeString);
+
             let option = document.createElement('option');
             option.value = timeString;
             option.text = timeString;
-            if (bookedSlots.includes(timeString)) { option.disabled = true; option.text += ' (محجوز)'; }
+
+            if (isBooked) {
+                option.disabled = true;
+                option.text += ' (محجوز)';
+            }
             timeSelect.appendChild(option);
+
             currentMinute += 10;
             if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
             if (currentHour >= 24) currentHour = 0;
         }
+    } catch (error) {
+        console.error("خطأ أثناء جلب المواعيد:", error);
     }
-
+}
     document.getElementById('bookingForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const formData = new FormData(this);
