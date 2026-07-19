@@ -2,6 +2,7 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>حجز موعد - عيادة د. عمرو</title>
@@ -50,8 +51,8 @@
         const timeSelect = document.getElementById('appointment_time');
         if (!clinic || !date) return;
 
-// تأكد من وجود المسار /get-booked-slots بشكل صحيح
-const response = await fetch(window.location.origin + `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${encodeURIComponent(date)}`);        const bookedSlots = await response.json();
+// استبدل السطر القديم بهذا السطر بالضبط
+const response = await fetch(`/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`);
 
         let startHour, startMinute, endHour, endMinute;
         if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
