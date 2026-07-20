@@ -173,11 +173,33 @@ slotsArray.forEach(slot => {
         document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
         
         // التعامل مع الإرسال
+     // التعامل مع الإرسال
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             document.getElementById('full_phone').value = iti.getNumber();
             
+            // --- تعديل لضمان إرسال الوقت بصيغة 24 ساعة للسيرفر ---
+            const timeSelect = document.getElementById('appointment_time');
+            let selectedOptionText = timeSelect.options[timeSelect.selectedIndex].text; // مثل "10:10 م"
+            let timeValue = timeSelect.value; // القيمة المخزنة
+            
+            // إذا كان الوقت المرسل يحتوي على حروف عربية أو تم عرضه بشكل 12 ساعة، نحوله لـ 24 ساعة
+            if (timeValue && (timeValue.includes('م') || timeValue.includes('ص') || selectedOptionText.includes('م') || selectedOptionText.includes('ص'))) {
+                // استخدام دالة التحويل لضمان إرسال تنسيق نظيف (مثل 22:10)
+                // إذا كانت timeValue مخزنة كـ 22:10 أصلاً، سنتركها كما هي
+                if (timeValue.includes(':') && !timeValue.includes('م') && !timeValue.includes('ص')) {
+                    // القيمة أصلية 24 ساعة، لا تقم بشيء
+                } else {
+                    // تحويل النص المعروض أو القيمة إلى 24 ساعة مرسلة
+                    timeValue = convertTo24Hour(selectedOptionText);
+                }
+            }
+            // ----------------------------------------------------
+
             const formData = new FormData(this);
+            // استبدال وقت الحجز بالقيمة المصححة (24 ساعة) لكي يفهمها السيرفر تماماً
+            formData.set('appointment_time', timeValue);
+
             fetch(this.action, {
                 method: 'POST',
                 body: formData,
