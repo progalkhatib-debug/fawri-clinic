@@ -97,91 +97,75 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
     <script>
-    // قائمة الدول باللغة العربية
-    const arabicCountries = {
-        'af': 'أفغانستان', 'al': 'ألبانيا', 'dz': 'الجزائر', 'ad': 'أندورا', 'ao': 'أنغولا', 'ag': 'أنتيغوا وبربودا', 'ar': 'الأرجنتين', 'am': 'أرمينيا', 'au': 'أستراليا', 'at': 'النمسا', 'az': 'أذربيجان', 'bs': 'جزر البهاما', 'bh': 'البحرين', 'bd': 'بنغلاديش', 'bb': 'بربادوس', 'by': 'بيلاروسيا', 'be': 'بلجيكا', 'bz': 'بليز', 'bj': 'بنين', 'bt': 'بوتان', 'bo': 'بوليفيا', 'ba': 'البوسنة والهرسك', 'bw': 'بوتسوانا', 'br': 'البرازيل', 'bn': 'بروناي', 'bg': 'بلغاريا', 'bf': 'بوركينا فاسو', 'bi': 'بوروندي', 'cv': 'الرأس الأخضر', 'kh': 'كمبوديا', 'cm': 'الكاميرون', 'ca': 'كندا', 'cf': 'جمهورية أفريقيا الوسطى', 'td': 'تشاد', 'cl': 'تشيلي', 'cn': 'الصين', 'co': 'كولومبيا', 'km': 'جزر القمر', 'cg': 'الكونغو', 'cr': 'كوستاريكا', 'hr': 'كرواتيا', 'cu': 'كوبا', 'cy': 'قبرص', 'cz': 'جمهورية التشيك', 'dk': 'الدنمارك', 'dj': 'جيبوتي', 'dm': 'دومينيكا', 'do': 'جمهورية الدومينيكان', 'ec': 'الإكوادور', 'eg': 'مصر', 'sv': 'السلفادور', 'gq': 'غينيا الاستوائية', 'er': 'إريتريا', 'ee': 'إستونيا', 'et': 'إثيوبيا', 'fj': 'فيجي', 'fi': 'فنلندا', 'fr': 'فرنسا', 'ga': 'الغابون', 'gm': 'غامبيا', 'ge': 'جورجيا', 'de': 'ألمانيا', 'gh': 'غانا', 'gr': 'اليونان', 'gd': 'غرينادا', 'gt': 'غواتيمالا', 'gn': 'غينيا', 'gw': 'غينيا بيساو', 'gy': 'غيانا', 'ht': 'هايتي', 'hn': 'هندوراس', 'hu': 'المجر', 'is': 'آيسلندا', 'in': 'الهند', 'id': 'إندونيسيا', 'ir': 'إيران', 'iq': 'العراق', 'ie': 'أيرلندا', 'il': 'إسرائيل', 'it': 'إيطاليا', 'jm': 'جامايكا', 'jp': 'اليابان', 'jo': 'الأردن', 'kz': 'كازاخستان', 'ke': 'كينيا', 'ki': 'كيريباتي', 'kw': 'الكويت', 'kg': 'قيرغيزستان', 'la': 'لاوس', 'lv': 'لاتفيا', 'lb': 'لبنان', 'ls': 'ليسوتو', 'lr': 'ليبيريا', 'ly': 'ليبيا', 'li': 'ليختنشتاين', 'lt': 'ليتوانيا', 'lu': 'لوكسمبورغ', 'mk': 'مقدونيا', 'mg': 'مدغشقر', 'mw': 'مالاوي', 'my': 'ماليزيا', 'mv': 'جزر المالديف', 'ml': 'مالي', 'mt': 'مالطا', 'mh': 'جزر مارشال', 'mr': 'موريتانيا', 'mu': 'موريشيوس', 'mx': 'المكسيك', 'fm': 'ولايات ميكرونيسيا المتحدة', 'md': 'مولدوفا', 'mc': 'موناكو', 'mn': 'منغوليا', 'me': 'الجبل الأسود', 'ma': 'المغرب', 'mz': 'موزمبيق', 'mm': 'ميانمار', 'na': 'ناميبيا', 'nr': 'ناورو', 'np': 'نيبال', 'nl': 'هولندا', 'nz': 'نيوزيلندا', 'ni': 'نيكاراغوا', 'ne': 'النيجر', 'ng': 'نيجيريا', 'no': 'النرويج', 'om': 'عُمان', 'pk': 'باكستان', 'pw': 'بالاو', 'ps': 'فلسطين', 'pa': 'بنما', 'pg': 'بابوا غينيا الجديدة', 'py': 'باراغواي', 'pe': 'بيرو', 'ph': 'الفلبين', 'pl': 'بولندا', 'pt': 'البرتغال', 'qa': 'قطر', 'ro': 'رومانيا', 'ru': 'روسيا', 'rw': 'رواندا', 'kn': 'سانت كيتس ونيفيس', 'lc': 'سانت لوسيا', 'vc': 'سانت فينسنت والغرينادين', 'ws': 'ساموا', 'sm': 'سان مارينو', 'st': 'ساو تومي وبرينسيب', 'sa': 'السعودية', 'sn': 'السنغال', 'rs': 'صربيا', 'sc': 'سيشل', 'sl': 'سيراليون', 'sg': 'سنغافورة', 'sk': 'سلوفاكيا', 'si': 'سلوفينيا', 'sb': 'جزر سليمان', 'so': 'الصومال', 'za': 'جنوب أفريقيا', 'kr': 'كوريا الجنوبية', 'ss': 'جنوب السودان', 'es': 'إسبانيا', 'lk': 'سريلانكا', 'sd': 'السودان', 'sr': 'سورينام', 'sz': 'إسواتيني', 'se': 'السويد', 'ch': 'سويسرا', 'sy': 'سوريا', 'tw': 'تايوان', 'tj': 'طاجيكستان', 'tz': 'تنزانيا', 'th': 'تايلاند', 'tl': 'تيمور الشرقية', 'tg': 'توغو', 'to': 'تونغا', 'tt': 'ترينيداد وتوباغو', 'tn': 'تونس', 'tr': 'تركيا', 'tm': 'تركمانستان', 'tv': 'توفالو', 'ug': 'أوغندا', 'ua': 'أوكرانيا', 'ae': 'الإمارات', 'gb': 'المملكة المتحدة', 'us': 'الولايات المتحدة', 'uy': 'الأوروغواي', 'uz': 'أوزبكستان', 'vu': 'فانواتو', 'va': 'مدينة الفاتيكان', 've': 'فنزويلا', 'vn': 'فيتنام', 'ye': 'اليمن', 'zm': 'زامبيا', 'zw': 'زيمبابوي'
-    };
-
-    // تفعيل مكتبة الأعلام
-    const phoneInput = document.querySelector("#phone");
-    
-    const iti = window.intlTelInput(phoneInput, {
-        initialCountry: "eg",
-        separateDialCode: true,
-        // هذا السطر هو المسؤول عن إظهار صندوق البحث
-        showSearchClass: true, 
-        searchCountry: true,
-        localizedCountries: arabicCountries, // القائمة التي أنشأناها سابقاً
-        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/utils.js"
-    });
+    // دالة تحويل الوقت من تنسيق "م" إلى 24 ساعة (ليناسب السيرفر)
+    function convertTo24Hour(timeString) {
+        let [time, modifier] = timeString.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (modifier === 'م' && hours !== '12') {
+            hours = parseInt(hours, 10) + 12;
+        } else if (modifier === 'ص' && hours === '12') {
+            hours = '00';
+        }
+        return hours + ':' + minutes;
+    }
 
     async function updateSlots() {
         const clinic = document.getElementById('clinic').value;
-        const date = document.querySelector('input[name="appointment_date"]').value;
         const timeSelect = document.getElementById('appointment_time');
 
-        if (!clinic || !date) return;
+        if (!clinic) return;
 
-        // 1. مسح الخيارات القديمة (ترك خيار "تحديد الوقت" فقط)
-        timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
+        timeSelect.innerHTML = '<option value="">جاري التحميل...</option>';
 
-        // تم تعديل هذا السطر فقط:
-        const url = "{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date;
-        
         try {
-            const response = await fetch(url);
-            const slots = await response.json(); // نفترض أن السيرفر يرجع مصفوفة أوقات
+            // جلب المواعيد من السيرفر
+            const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic));
+            const slots = await response.json();
 
-            // 2. إضافة الأوقات الجديدة
+            timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
+            
             slots.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = slot;
-                option.textContent = slot;
+                option.value = convertTo24Hour(slot); // إرسال 19:30 للسيرفر
+                option.textContent = slot;           // عرض 07:30 م للمريض
                 timeSelect.appendChild(option);
             });
-
-            timeSelect.disabled = false;
-            timeSelect.classList.remove('bg-gray-100');
-        } catch (e) { 
-            console.error('Error fetching slots:', e); 
+        } catch (e) {
+            console.error('Error:', e);
+            timeSelect.innerHTML = '<option value="">خطأ في التحميل</option>';
         }
     }
-    // تفعيل التحديث التلقائي عند تغيير العيادة أو التاريخ
+
+    // تفعيل التحديث عند تغيير العيادة
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('clinic').addEventListener('change', updateSlots);
-        document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
-    });
-// نضع الكود هنا للتأكد من تحميل كل عناصر الصفحة أولاً
-  document.getElementById('bookingForm').addEventListener('submit', function(e) {
-        // نمنع الإرسال الافتراضي للنموذج حتى نتحقق من الرد
-        e.preventDefault();
         
-        document.getElementById('full_phone').value = iti.getNumber();
-        
-        const formData = new FormData(this);
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('تم حجز الموعد بنجاح!');
-                window.location.reload(); // إعادة تحميل الصفحة لتفريغ البيانات
-            } else if (data.error) {
-                alert(data.error); // هنا ستظهر رسالة "الموعد محجوز" كرسالة تنبيه واضحة
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('حدث خطأ أثناء الاتصال بالسيرفر');
+        // التعامل مع الإرسال
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('full_phone').value = iti.getNumber();
+            
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('تم حجز الموعد بنجاح!');
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'حدث خطأ ما');
+                }
+            })
+            .catch(error => alert('حدث خطأ أثناء الاتصال'));
         });
     });
-    </script>
+</script>
 </body>
 </html>
