@@ -9,7 +9,7 @@
     <!-- مكتبة الأعلام -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
     <title>حجز موعد - عيادة د. عمرو</title>
-    <style>
+   <style>
     body { 
         background: linear-gradient(135deg, #005c97, #363795); 
         min-height: 100vh; 
@@ -22,11 +22,14 @@
     /* تنسيقات مكتبة الهاتف الضرورية */
     .iti { width: 100%; display: block; } 
     
-    /* حل مشكلة ظهور القائمة خلف العناصر */
+    /* حل مشكلة ظهور القائمة خلف العناصر وضبط اتجاهها */
     .iti__country-list {
         z-index: 9999 !important;
         position: absolute;
-        text-align: right; /* لضمان ظهور النصوص من اليمين */
+        text-align: right !important; 
+        direction: ltr !important; /* للحفاظ على ترتيب الأرقام */
+        width: 300px !important;    /* عرض ثابت لتظهر كاملة */
+        right: 0 !important;       /* محاذاة القائمة لليمين لتناسب لغة الموقع */
     }
     
     /* تصحيح مسار صور الأعلام */
