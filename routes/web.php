@@ -45,3 +45,12 @@ Route::get('/lang/{locale}', function ($locale) {
     return redirect()->back(); // هذا سيعيد تحميل الصفحة فوراً
 })->name('lang.switch');
 
+Route::get('/add-test-appointment', function() {
+    \App\Models\Appointment::create([
+        'clinic'    => 'التمساحية',
+        'date_time' => '2026-07-20 12:00:00', // نفس التاريخ اليوم ونفس اسم العيادة
+        'name'      => 'مريض تجريبي',
+        'phone'     => '0100000000',
+    ]);
+    return "تم إضافة الموعد التجريبي بنجاح في قاعدة البيانات! اذهب الآن لصفحة الحجز وجرب.";
+});
