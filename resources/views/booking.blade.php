@@ -19,19 +19,34 @@
         </div>
         
         <div class="md:w-1/2 p-8">
-            <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">حجز موعد جديد</h1>
-            
-            <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-4">
-                @csrf
-                <input type="text" name="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
-                <input type="text" name="phone" placeholder="رقم الهاتف" required class="w-full p-3 border rounded-lg">
-                
-                <select name="clinic" id="clinic" required class="w-full p-3 border rounded-lg" onchange="updateSlots()">
-                    <option value="">اختر العيادة</option>
-                    <option value="القوصية">القوصية (4:00 م - 7:00 م)</option>
-                    <option value="المنشأة الكبرى">المنشأة الكبرى (7:30 م - 9:30 م)</option>
-                    <option value="التمساحية">التمساحية (10:00 م - 12:00 ص)</option>
-                </select>
+    <!-- 1. تغيير العنوان -->
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">حجز موعد ومتابعة</h1>
+    
+    <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-4">
+        @csrf
+        
+        <!-- 2. إضافة خيار نوع الموعد -->
+        <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border">
+            <label class="flex items-center cursor-pointer">
+                <input type="radio" name="appointment_type" value="new" checked class="form-radio h-5 w-5 text-blue-600">
+                <span class="mr-2 text-gray-700">حجز جديد</span>
+            </label>
+            <label class="flex items-center cursor-pointer">
+                <input type="radio" name="appointment_type" value="followup" class="form-radio h-5 w-5 text-blue-600">
+                <span class="mr-2 text-gray-700">متابعة</span>
+            </label>
+        </div>
+
+        <input type="text" name="patient_name" id="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
+        <input type="text" name="phone" id="phone" placeholder="رقم الهاتف" required class="w-full p-3 border rounded-lg">
+        
+        <select name="clinic" id="clinic" required class="w-full p-3 border rounded-lg" onchange="updateSlots()">
+            <option value="">اختر العيادة</option>
+            <option value="القوصية">القوصية (4:00 م - 7:00 م)</option>
+            <option value="المنشأة الكبرى">المنشأة الكبرى (7:30 م - 9:30 م)</option>
+            <option value="التمساحية">التمساحية (10:00 م - 12:00 ص)</option>
+        </select>
+        
 
                 <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required class="w-full p-3 border rounded-lg">
                 
@@ -103,22 +118,28 @@
     }
 }
     document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const response = await fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-
-        if (response.ok) {
-            alert('تم الحجز بنجاح!');
-            this.reset();
-            updateSlots();
-        } else {
-            alert('حدث خطأ، يرجى المحاولة مرة أخرى.');
+    e.preventDefault();
+    
+    // FormData ستأخذ تلقائياً حقل appointment_type لأننا أعطيناه name="appointment_type" في الـ HTML
+    const formData = new FormData(this);
+    
+    const response = await fetch(this.action, {
+        method: 'POST',
+        body: formData, // سيرسل كل الحقول بما فيها النوع
+        headers: { 
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // تأكد من وجود هذا السطر إذا كنت تواجه خطأ 419
         }
     });
+
+    if (response.ok) {
+        alert('تم الحجز بنجاح!');
+        this.reset();
+        updateSlots();
+    } else {
+        alert('حدث خطأ، يرجى المحاولة مرة أخرى.');
+    }
+});
 
     document.getElementById('clinic').addEventListener('change', updateSlots);
     document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);

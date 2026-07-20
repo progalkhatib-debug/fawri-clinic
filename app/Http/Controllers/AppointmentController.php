@@ -54,7 +54,8 @@ class AppointmentController extends Controller
             'phone' => 'required',
             'appointment_date' => 'required|date|after_or_equal:today',
             'appointment_time' => 'required',
-            'clinic' => 'required'
+            'clinic' => 'required',
+            'appointment_type' => 'required' // أضف هذا السطر
         ]);
 
         $clinicSchedules = [
@@ -91,10 +92,11 @@ class AppointmentController extends Controller
             'patient_name' => $request->patient_name,
             'phone' => $request->phone,
             'date_time' => $fullDateTime,
-            'clinic' => $clinic
+            'clinic' => $clinic,
+            'type' => $request->appointment_type // أضف هذا السطر لحفظ النوع
         ]);
 
-        return back()->with('success', 'تم حجز موعدك بنجاح في ' . $clinic);
+        return response()->json(['success' => true]);
     }
 
     // حذف الحجز
