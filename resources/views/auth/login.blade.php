@@ -2,21 +2,20 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <!-- حاوية الصورة والاسم (بتنسيق Tailwind) -->
-    <div class="flex flex-col items-center mb-6">
-        <img src="{{ asset('amr.jpg') }}" alt="Dr. Amr Khallaf" class="w-32 h-32 rounded-full border-4 border-blue-700 object-cover">
-        <h2 class="text-2xl font-bold text-blue-800 mt-4">د. عمرو خلاف</h2>
-        <p class="text-gray-600">أخصائي الجراحة العامة</p>
+    <!-- كود الصورة المضاف -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="{{ asset('amr.jpg') }}" alt="Dr. Amr Khallaf" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #0056b3; margin: 0 auto;">
+        <h2 style="color: #0056b3; font-weight: bold; margin-top: 10px;">د. عمرو خلاف</h2>
+        <p style="color: #666;">أخصائي الجراحة العامة</p>
     </div>
 
-    <!-- النموذج -->
-    <form method="POST" action="{{ route('login') }}" class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+    <form method="POST" action="{{ route('login') }}">
         @csrf
 
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full border-gray-300 rounded-lg" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             @if ($errors->has('email'))
                 <div class="text-red-500 text-sm mt-2">
                     {{ __($errors->first('email')) }}
@@ -27,10 +26,12 @@
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full border-gray-300 rounded-lg"
+
+            <x-text-input id="password" class="block mt-1 w-full"
                             type="password"
                             name="password"
                             required autocomplete="current-password" />
+
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
@@ -42,16 +43,18 @@
             </label>
         </div>
 
-        <div class="flex items-center justify-between mt-6">
+        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
+                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
 
-            <x-primary-button class="ms-3 bg-blue-700 hover:bg-blue-800 rounded-lg px-6 py-2">
+            <x-primary-button class="ms-3">
                 {{ __('Log in') }}
             </x-primary-button>
+            
         </div>
+        
     </form>
 </x-guest-layout>
