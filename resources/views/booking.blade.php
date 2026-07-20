@@ -9,7 +9,7 @@
     <!-- مكتبة الأعلام -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
     <title>حجز موعد - عيادة د. عمرو</title>
-    <style>
+   <style>
     body { 
         background: linear-gradient(135deg, #005c97, #363795); 
         min-height: 100vh; 
@@ -27,6 +27,18 @@
         z-index: 9999 !important;
         position: absolute;
         text-align: right; /* لضمان ظهور النصوص من اليمين */
+        direction: ltr !important; /* للحفاظ على ترتيب الأرقام والبحث */
+        width: 300px !important;    /* عرض ثابت لتظهر كاملة */
+    }
+
+    /* تنسيق صندوق البحث ليظهر بوضوح داخل القائمة */
+    .iti__search-input {
+        display: block !important;
+        width: 100% !important;
+        padding: 8px !important;
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        margin-bottom: 5px !important;
     }
     
     /* تصحيح مسار صور الأعلام */
@@ -41,11 +53,14 @@
         <div class="w-full md:w-1/2 bg-blue-50 block">
             <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-full object-cover">
         </div>
-        <div class="md:w-1/2 p-8 pt-4"> <!-- قمنا بتغيير p-8 إلى p-8 pt-4 لتقليل المسافة العلوية فقط -->
+        <!-- تعديل الـ div الخاص بالنموذج ليصبح pt-0 بدلاً من pt-4 -->
+<div class="md:w-1/2 p-6 pt-0"> 
     
-    <h1 class="text-2xl font-bold mb-4 text-center text-blue-800">حجز موعد ومتابعة</h1> <!-- صغرنا الخط قليلاً ليوفر مساحة -->
+    <!-- تقليل هامش العنوان ليصبح أصغر -->
+    <h1 class="text-2xl font-bold mb-2 mt-0 text-center text-blue-800">حجز موعد ومتابعة</h1>
     
-    <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-3"> <!-- صغرنا مسافات العناصر لتقليل الطول الكلي -->
+    <!-- تقليل المسافات بين عناصر النموذج -->
+    <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-2">
         @csrf
                 <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border">
                     <label class="flex items-center cursor-pointer">
