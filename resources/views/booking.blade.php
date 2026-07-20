@@ -119,44 +119,46 @@
 async function updateSlots() {
         const clinicSelect = document.getElementById('clinic');
         const clinic = clinicSelect.value;
-        const clinicName = clinicSelect.options[clinicSelect.selectedIndex].text; // اسم العيادة
+        const clinicName = clinicSelect.options[clinicSelect.selectedIndex].text;
         const date = document.querySelector('input[name="appointment_date"]').value;
         const timeSelect = document.getElementById('appointment_time');
 
         if (!clinic || !date) return;
 
         timeSelect.innerHTML = '<option value="">جاري التحميل...</option>';
-        timeSelect.disabled = false;
 
         try {
             const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date);
-            const data = await response.json(); // نفترض أن البيانات تأتي كـ { slots: [...], booked: [...] }
+            const data = await response.json(); 
 
             timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-            // بيانات المواعيد (تأكد أن السيرفر يرسل المواعيد المتاحة والمحجوزة)
-            data.slots.forEach(slot => {
-                const option = document.createElement('option');
-                option.value = slot.time;
+            // نتحقق مما إذا كانت البيانات مصفوفة مباشرة أو كائن يحتوي على slots
+            const slotsArray = Array.isArray(data) ? data : (data.slots || []);
+            const bookedArray = data.booked || []; // إذا لم يوجد booked، نعتبرها فارغة
+
+            slotsArray.forEach(slotItem => {
+                // التعامل مع كون السلوت نصاً (مثل "10:00") أو كائناً (مثل {time: "10:00"})
+                const timeValue = typeof slotItem === 'object' ? slotItem.time : slotItem;
                 
-                // تحديد ما إذا كان الموعد "م" أو "ص" بناءً على اسم العيادة أو منطق الوقت
-                // بما أن أغلب عياداتك مسائية، سنقوم بتحويل منطقي ذكي
-                let [hours, minutes] = slot.time.split(':');
+                const option = document.createElement('option');
+                option.value = timeValue;
+                
+                let [hours, minutes] = timeValue.split(':');
                 let h = parseInt(hours);
                 
-                // منطق التمييز:
-                // إذا كانت العيادة "التمساحية" والساعة 10 أو 11 فهي "م"، أما 12 فهي "ص"
-                // غير ذلك، الساعة 12 فما فوق هي "م"
+                // منطق الوقت
                 let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
-                if (clinicName.includes('التمساحية') && (h == 10 || h == 11)) modifier = 'م';
+                if (clinicName.includes('التمساحية') && (h >= 10 && h <= 11)) modifier = 'م';
+                if (h == 0 || h == 12) modifier = (h == 12) ? 'م' : 'ص'; // تعديل بسيط لـ 12
 
                 let displayHours = h % 12 || 12;
                 let timeText = `${displayHours}:${minutes} ${modifier}`;
 
-                // إضافة علامة "محجوز" إذا كان الموعد في قائمة المحجوزات
-                if (data.booked.includes(slot.time)) {
+                // التحقق من الحجز
+                if (bookedArray.includes(timeValue)) {
                     option.textContent = `${timeText} - محجوز`;
-                    option.disabled = true; // منع اختيار الموعد المحجوز
+                    option.disabled = true;
                 } else {
                     option.textContent = timeText;
                 }
@@ -165,7 +167,7 @@ async function updateSlots() {
             });
         } catch (e) {
             console.error('Error:', e);
-            timeSelect.innerHTML = '<option value="">خطأ في التحميل</option>';
+            timeSelect.innerHTML = '<option value="">خطأ: تأكد من تنسيق البيانات</option>';
         }
     }
 
