@@ -96,7 +96,7 @@
 <!-- استبدل الروابط القديمة بهذه الروابط -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
-    <script>
+   <script>
     // 1. إضافة كود تهيئة المكتبة ليعمل حقل الهاتف
     const phoneInputField = document.querySelector("#phone");
     const iti = window.intlTelInput(phoneInputField, {
@@ -118,15 +118,17 @@
 
     async function updateSlots() {
         const clinic = document.getElementById('clinic').value;
+        const date = document.querySelector('input[name="appointment_date"]').value; // الحصول على التاريخ
         const timeSelect = document.getElementById('appointment_time');
 
-        if (!clinic) return;
+        if (!clinic || !date) return; // لا تجلب بيانات إلا إذا تم اختيار العيادة والتاريخ
 
         timeSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+        timeSelect.disabled = false; // تفعيل القائمة لتتمكن من الضغط عليها
 
         try {
-            // جلب المواعيد من السيرفر
-            const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic));
+            // جلب المواعيد من السيرفر مع إرسال التاريخ والعيادة
+            const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date);
             const slots = await response.json();
 
             timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
@@ -134,7 +136,7 @@
             slots.forEach(slot => {
                 const option = document.createElement('option');
                 option.value = convertTo24Hour(slot); // إرسال 19:30 للسيرفر
-                option.textContent = slot;           // عرض 07:30 م للمريض
+                option.textContent = slot;          // عرض 07:30 م للمريض
                 timeSelect.appendChild(option);
             });
         } catch (e) {
