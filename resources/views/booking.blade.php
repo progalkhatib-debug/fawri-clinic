@@ -134,16 +134,16 @@
             
            slots.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = slot; // القيمة الأصلية للسيرفر (مثل 22:00)
+                option.value = slot; 
                 
-                // تحويل الوقت للعرض
                 let [hours, minutes] = slot.split(':');
                 let h = parseInt(hours);
                 
-                // تحديد ما إذا كان الوقت "م" أو "ص"
-                let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
+                // التعديل هنا: تحديد ص/م بناءً على الساعة
+                // المواعيد من 12 ظهراً وحتى 11:59 مساءً تكون "م"
+                // المواعيد من 12 ليلاً وحتى 11:59 صباحاً تكون "ص"
+                let modifier = (h >= 12) ? 'م' : 'ص';
                 
-                // جعل الساعة دائماً بين 1 و 12
                 let displayHours = h % 12;
                 if (displayHours === 0) displayHours = 12;
                 
