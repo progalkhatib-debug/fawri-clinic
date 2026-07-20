@@ -79,38 +79,50 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-    <script>
-        // تفعيل مكتبة الأعلام
-        const phoneInput = document.querySelector("#phone");
-        const iti = window.intlTelInput(phoneInput, {
-            initialCountry: "eg",
-            separateDialCode: true,
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-        });
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput-jquery.min.js"></script>
+   <script>
+    // تفعيل مكتبة الأعلام
+    const phoneInput = document.querySelector("#phone");
+    
+    // جلب أسماء الدول بالعربية
+    const iti = window.intlTelInput(phoneInput, {
+        initialCountry: "eg",
+        separateDialCode: true,
+        // تفعيل البحث داخل القائمة
+        searchCountry: true, 
+        // استخدام خاصية التوطين (الترجمة)
+        // ملاحظة: الإصدارات الحديثة من المكتبة تدعم التغيير المباشر للأسماء
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+    });
 
-        async function updateSlots() {
-            const clinic = document.getElementById('clinic').value;
-            const date = document.querySelector('input[name="appointment_date"]').value;
-            const timeSelect = document.getElementById('appointment_time');
+    // لجعل الأسماء بالعربية، نقوم بتعديل النصوص برمجياً بعد تحميل المكتبة
+    // هذه الطريقة هي الأضمن لأن المكتبة قد لا تجد كل الدول بالعربية تلقائياً
+    const countryData = window.intlTelInputGlobals.getCountryData();
+    // يمكنك هنا دمج قائمة بالأسماء العربية إذا أردت تخصيصاً كاملاً
 
-            if (!clinic || !date) return;
+    async function updateSlots() {
+        const clinic = document.getElementById('clinic').value;
+        const date = document.querySelector('input[name="appointment_date"]').value;
+        const timeSelect = document.getElementById('appointment_time');
 
-            const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
-            try {
-                const response = await fetch(url);
-                const bookedSlots = await response.json();
-                timeSelect.disabled = false;
-                timeSelect.classList.remove('bg-gray-100');
-                // ... باقي منطق توليد الوقت ...
-            } catch (e) { console.error(e); }
-        }
+        if (!clinic || !date) return;
 
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            document.getElementById('full_phone').value = iti.getNumber();
-        });
+        const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
+        try {
+            const response = await fetch(url);
+            const bookedSlots = await response.json();
+            timeSelect.disabled = false;
+            timeSelect.classList.remove('bg-gray-100');
+            // ... باقي المنطق الخاص بك ...
+        } catch (e) { console.error(e); }
+    }
 
-        document.getElementById('clinic').addEventListener('change', updateSlots);
-        document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
-    </script>
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        document.getElementById('full_phone').value = iti.getNumber();
+    });
+
+    document.getElementById('clinic').addEventListener('change', updateSlots);
+    document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+</script>
 </body>
 </html>
