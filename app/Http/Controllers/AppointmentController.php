@@ -70,57 +70,63 @@ class AppointmentController extends Controller
 }
 public function store(Request $request)
 {
-    // 1. التحقق من البيانات (استخدمنا full_phone القادم من المكتبة)
-    $request->validate([
-        'patient_name'     => 'required',
-        'full_phone'       => 'required', // هذا هو الحقل المخفي الذي ترسله المكتبة
-        'appointment_date' => 'required|date|after_or_equal:today',
-        'appointment_time' => 'required',
-        'clinic'           => 'required',
-        'appointment_type' => 'required'
-    ]);
+    try {
+        // 1. التحقق من البيانات (استخدمنا full_phone القادم من المكتبة)
+        $request->validate([
+            'patient_name'     => 'required',
+            'full_phone'       => 'required', // هذا هو الحقل المخفي الذي ترسله المكتبة
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'appointment_time' => 'required',
+            'clinic'           => 'required',
+            'appointment_type' => 'required'
+        ]);
 
-    $clinicSchedules = [
-        'القوصية' => ['start' => '16:00', 'end' => '19:00'],
-        'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
-        'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
-    ];
+        $clinicSchedules = [
+            'القوصية' => ['start' => '16:00', 'end' => '19:00'],
+            'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
+            'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
+        ];
 
-    $time = $request->appointment_time;
-    $clinic = $request->clinic;
+        $time = $request->appointment_time;
+        $clinic = $request->clinic;
 
-    // التحقق من مواعيد العيادات
-    if (isset($clinicSchedules[$clinic])) {
-        if ($clinic === 'التمساحية') {
-            if ($time < '22:00') {
-                return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
-            }
-        } else {
-            if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
-                return response()->json(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic], 422);
+        // التحقق من مواعيد العيادات
+        if (isset($clinicSchedules[$clinic])) {
+            if ($clinic === 'التمساحية') {
+                if ($time < '22:00') {
+                    return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
+                }
+            } else {
+                if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
+                    return response()->json(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic], 422);
+                }
             }
         }
+
+        $fullDateTime = $request->appointment_date . ' ' . $time;
+        $exists = Appointment::where('date_time', $fullDateTime)
+                             ->where('clinic', $clinic)
+                             ->exists();
+
+        if ($exists) {
+            return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
+        }
+
+        // 2. الحفظ في قاعدة البيانات
+        Appointment::create([
+            'patient_name' => $request->patient_name,
+            'phone'        => $request->full_phone, // الرقم يأتي جاهزاً من المكتبة
+            'date_time'    => $fullDateTime,
+            'clinic'       => $clinic,
+            'type'         => $request->appointment_type 
+        ]);
+
+        return response()->json(['success' => true]);
+        
+    } catch (\Exception $e) {
+        // في حال حدوث أي خطأ، سنرجعه كـ JSON ليقرأه المتصفح دون فتح صفحة الرموز
+        return response()->json(['error' => $e->getMessage()], 422);
     }
-
-    $fullDateTime = $request->appointment_date . ' ' . $time;
-    $exists = Appointment::where('date_time', $fullDateTime)
-                         ->where('clinic', $clinic)
-                         ->exists();
-
-    if ($exists) {
-        return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
-    }
-
-    // 2. الحفظ في قاعدة البيانات
-    Appointment::create([
-        'patient_name' => $request->patient_name,
-        'phone'        => $request->full_phone, // الرقم يأتي جاهزاً من المكتبة
-        'date_time'    => $fullDateTime,
-        'clinic'       => $clinic,
-        'type'         => $request->appointment_type 
-    ]);
-
-    return response()->json(['success' => true]);
 }
     // حذف الحجز
     public function destroy(int $id)
