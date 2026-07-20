@@ -44,3 +44,4 @@ Route::get('/lang/{locale}', function ($locale) {
     }
     return redirect()->back(); // هذا سيعيد تحميل الصفحة فوراً
 })->name('lang.switch');
+
