@@ -37,15 +37,22 @@ class AppointmentController extends Controller
         return view('booking'); // تأكد أن ملف صفحة الحجز لديك اسمه booking.blade.php وموجود في مجلد resources/views
     }
     
-   public function getBookedSlots(Request $request)
+  public function getBookedSlots(Request $request)
 {
-    // استخدام whereDate هو الأضمن لأنه يتجاهل التنسيق ويقارن التاريخ فقط
-    $slots = Appointment::where('clinic', $request->clinic)
-                        ->whereDate('date_time', $request->date)
-                        ->get()
-                        ->map(function($appointment) {
-                            return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
-                        });
+    // جلب كل البيانات بدون فلترة للتأكد من وجودها
+    $allAppointments = Appointment::where('clinic', $request->clinic)->get();
+
+    // إذا كانت هذه المصفوفة فارغة، فالمشكلة أن اسم العيادة غير متطابق
+    if ($allAppointments->isEmpty()) {
+        return response()->json(['error' => 'لا توجد مواعيد لهذه العيادة']);
+    }
+
+    // إذا وصلت هنا، فهناك مواعيد، لنفلترها يدوياً للتأكد من التاريخ
+    $slots = $allAppointments->filter(function($appointment) use ($request) {
+        return \Carbon\Carbon::parse($appointment->date_time)->format('Y-m-d') == $request->date;
+    })->map(function($appointment) {
+        return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
+    })->values();
 
     return response()->json($slots);
 }
