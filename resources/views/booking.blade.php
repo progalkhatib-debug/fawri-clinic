@@ -147,6 +147,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('clinic').addEventListener('change', updateSlots);
         
+        // أضف هذا السطر الجديد لمراقبة تغيير التاريخ
+        document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+        
         // التعامل مع الإرسال
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();

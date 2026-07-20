@@ -2,14 +2,9 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <!-- تصميم الصورة والمعلومات (مطابق لصفحة الحجز) -->
-    <div class="text-center mb-6">
-        <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-32 h-32 rounded-full border-4 border-blue-600 mx-auto object-cover">
-        <h2 class="text-2xl font-bold text-blue-800 mt-4">د. عمرو خلاف</h2>
-        <p class="text-gray-600 font-medium">أخصائي الجراحة العامة</p>
-    </div>
+    <!-- قمنا بحذف الـ div الذي يحتوي على صورة الدكتور الشخصية من هنا -->
+    <!-- يمكنك إزالة هذا الجزء بالكامل أو تركه كما هو إذا أردت فقط إزالة الصورة -->
 
-    <!-- نموذج الدخول (بنفس تنسيق حقول الحجز) -->
     <form method="POST" action="{{ route('login') }}" class="space-y-4">
         @csrf
 
