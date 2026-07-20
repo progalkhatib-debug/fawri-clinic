@@ -71,10 +71,10 @@ class AppointmentController extends Controller
 public function store(Request $request)
 {
     try {
-        // 1. التحقق من البيانات (استخدمنا full_phone القادم من المكتبة)
+        // 1. التحقق من البيانات
         $request->validate([
             'patient_name'     => 'required',
-            'full_phone'       => 'required', // هذا هو الحقل المخفي الذي ترسله المكتبة
+            'full_phone'       => 'required',
             'appointment_date' => 'required|date|after_or_equal:today',
             'appointment_time' => 'required',
             'clinic'           => 'required',
@@ -90,16 +90,37 @@ public function store(Request $request)
         $time = $request->appointment_time;
         $clinic = $request->clinic;
 
-        // التحقق من مواعيد العيادات
-        if (isset($clinicSchedules[$clinic])) {
-            if ($clinic === 'التمساحية') {
-                if ($time < '22:00') {
-                    return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
-                }
-            } else {
-                if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
-                    return response()->json(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic], 422);
-                }
+        // دالة مساعدة لتصحيح وتوحيد تنسيق الوقت إلى 24 ساعة إن كان أرسل بصيغة أخرى
+        // (إذا كان الوقت مرسلاً مثلاً بصيغة 10:00 م، سيحوله إلى 22:00)
+        if (str_contains($time, 'م') || str_contains($time, 'ص')) {
+            // معالجة الصيغة العربية لو وجدت
+            $timeClean = str_replace(['م', 'ص', ' '], '', $time);
+            list($h, $m) = explode(':', $timeClean);
+            if (str_contains($time, 'م') && (int)$h < 12) {
+                $h = (int)$h + 12;
+            } elseif (str_contains($time, 'ص') && (int)$h == 12) {
+                $h = '00';
+            }
+            $time = sprintf('%02d:%s', $h, $m);
+        }
+
+        // داخل دالة store في الـ Controller
+// لا داعي لتحويل الوقت إذا كان المتصفح يرسل 22:00، 
+// ولكن تأكد من أن التحقق في الـ Controller يستخدم صيغة 24 ساعة:
+
+if ($clinic === 'التمساحية') {
+    // 22:00 (10 م) إلى 23:59 (11:59 م) 
+    // إذا كان الموعد 00:00 (12 ص)، تأكد أن السيرفر يقبله.
+    if (($time >= '22:00' && $time <= '23:59') || $time === '00:00') {
+        // الوقت مقبول
+    } else {
+        return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
+    }
+
+        } elseif (isset($clinicSchedules[$clinic])) {
+            // التحقق لباقي العيادات
+            if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
+                return response()->json(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic], 422);
             }
         }
 
@@ -115,7 +136,7 @@ public function store(Request $request)
         // 2. الحفظ في قاعدة البيانات
         Appointment::create([
             'patient_name' => $request->patient_name,
-            'phone'        => $request->full_phone, // الرقم يأتي جاهزاً من المكتبة
+            'phone'        => $request->full_phone,
             'date_time'    => $fullDateTime,
             'clinic'       => $clinic,
             'type'         => $request->appointment_type 
@@ -124,7 +145,6 @@ public function store(Request $request)
         return response()->json(['success' => true]);
         
     } catch (\Exception $e) {
-        // في حال حدوث أي خطأ، سنرجعه كـ JSON ليقرأه المتصفح دون فتح صفحة الرموز
         return response()->json(['error' => $e->getMessage()], 422);
     }
 }

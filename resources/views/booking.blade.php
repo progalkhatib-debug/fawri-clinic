@@ -136,22 +136,25 @@ timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             // التأكد من أننا نتعامل دائماً مع مصفوفة مهما كان شكل البيانات القادم من السيرفر
             const slotsArray = Array.isArray(slots) ? slots : (slots.data || []);
             
-            slotsArray.forEach(slot => {
-                const option = document.createElement('option');
-                option.value = slot; // القيمة الأصلية 10:00 أو 22:00
-                
-                let [hours, minutes] = slot.split(':');
-                let h = parseInt(hours);
-                
-                // منطق الوقت (التمساحية مسائي، غيرها حسب الساعة)
-                let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
-                if (clinicName.includes('التمساحية') && (h >= 10 && h <= 11)) modifier = 'م';
-                
-                let displayHours = h % 12 || 12;
-                option.textContent = `${displayHours}:${minutes} ${modifier}`;
-                
-                timeSelect.appendChild(option);
-            });
+           // داخل الـ Script في ملف الـ Blade
+slotsArray.forEach(slot => {
+    const option = document.createElement('option');
+    option.value = slot; // القيمة الحقيقية (مثل 22:00) تُرسل للسيرفر
+    
+    let [hours, minutes] = slot.split(':');
+    let h = parseInt(hours);
+    
+    // منطق العرض للمستخدم (12 ساعة)
+    let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
+    
+    // استثناء التمساحية: الساعة 22 و 23 تظهر 10 و 11 م
+    // الساعة 00 (منتصف الليل) تظهر 12 ص
+    let displayHours = h % 12;
+    if (displayHours === 0) displayHours = 12;
+    
+    option.textContent = `${displayHours}:${minutes} ${modifier}`;
+    timeSelect.appendChild(option);
+});
         } catch (e) {
             // هنا نرى الخطأ الحقيقي في الـ Console إذا لم يظهر شيء
             console.error('Error details:', e);
