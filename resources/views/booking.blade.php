@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- مكتبة الأعلام -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
+    <!-- مكتبة الأعلام (تم تحديث الرابط هنا) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css"/>
     <title>حجز موعد - عيادة د. عمرو</title>
    <style>
+    :root { --iti-flag-image: url('https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/img/flags.png'); }
     body { 
         background: linear-gradient(135deg, #005c97, #363795); 
         min-height: 100vh; 
@@ -43,12 +44,7 @@
         margin-bottom: 5px !important;
         box-sizing: border-box !important; /* لضمان عدم خروج الصندوق عن العرض */
     }
-    
-    /* تصحيح مسار صور الأعلام */
-    .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags.png"); }
-    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-        .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags@2x.png"); }
-    }
+
 </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -129,7 +125,9 @@
         // 1. مسح الخيارات القديمة (ترك خيار "تحديد الوقت" فقط)
         timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
 
-        const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
+        // تم تعديل هذا السطر فقط:
+        const url = "{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date;
+        
         try {
             const response = await fetch(url);
             const slots = await response.json(); // نفترض أن السيرفر يرجع مصفوفة أوقات

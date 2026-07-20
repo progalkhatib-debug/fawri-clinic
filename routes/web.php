@@ -13,8 +13,8 @@ Route::get('/booking', [AppointmentController::class, 'create'])->name('booking.
 Route::post('/booking', [AppointmentController::class, 'store'])->name('booking.store');
 
 // المسار المفقود الذي كان يسبب مشكلة Not Found
-Route::get('/get-booked-slots', [AppointmentController::class, 'getBookedSlots'])->name('get.booked.slots');
-
+// قم بتعديل هذا السطر ليطابق الاسم الذي استخدمناه في دالة updateSlots
+Route::get('/get-booked-slots', [AppointmentController::class, 'getBookedSlots'])->name('get-booked-slots');
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

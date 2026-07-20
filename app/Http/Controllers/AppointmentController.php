@@ -39,12 +39,14 @@ class AppointmentController extends Controller
     
    public function getBookedSlots(Request $request)
 {
-    return Appointment::where('clinic', $request->clinic)
-                      ->where('date_time', 'like', $request->date . '%')
-                      ->get()
-                      ->map(function($appointment) {
-                          return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
-                      });
+    $slots = Appointment::where('clinic', $request->clinic)
+                        ->where('date_time', 'like', $request->date . '%')
+                        ->get()
+                        ->map(function($appointment) {
+                            return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
+                        });
+
+    return response()->json($slots);
 }
 public function store(Request $request)
 {
