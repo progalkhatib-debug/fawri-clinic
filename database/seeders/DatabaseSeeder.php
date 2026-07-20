@@ -15,11 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // إضافة أو تحديث حساب الأدمن الخاص بك
+        User::updateOrCreate(
+            ['email' => 'amr@gmail.com'], // البحث عن المستخدم بهذا الإيميل
+            [
+                'name' => 'Dr Amr',
+                'password' => \Illuminate\Support\Facades\Hash::make('12345678'), // استبدل 12345678 بكلمة المرور الخاصة بك
+            ]
+        );
     }
 }

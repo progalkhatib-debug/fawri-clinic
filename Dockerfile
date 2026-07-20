@@ -26,4 +26,4 @@ RUN mkdir -p /var/www/html/database && \
 RUN php artisan migrate --force || true
 
 # استبدل السطر الأخير (CMD) بهذا السطر:
-CMD php artisan migrate --force && apache2-foreground
+CMD php artisan migrate --force && php artisan db:seed --force && apache2-foreground
