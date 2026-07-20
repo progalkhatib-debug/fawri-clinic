@@ -37,28 +37,45 @@ class AppointmentController extends Controller
         return view('booking'); // تأكد أن ملف صفحة الحجز لديك اسمه booking.blade.php وموجود في مجلد resources/views
     }
     
- public function getBookedSlots(Request $request)
+public function getBookedSlots(Request $request)
 {
-    // 1. تعريف فترة العمل للعيادة (مثلاً من 10:00 إلى 12:00)
-    $startTime = \Carbon\Carbon::createFromTime(10, 0);
-    $endTime = \Carbon\Carbon::createFromTime(12, 0);
+    $clinic = $request->clinic;
     
-    // 2. جلب الأوقات المحجوزة فعلياً من قاعدة البيانات لهذا اليوم
-    $bookedAppointments = Appointment::where('clinic', $request->clinic)
+    // تعريف جداول العيادات لتحديد بداية ونهاية كل عيادة بدقة
+    $clinicSchedules = [
+        'القوصية' => ['start' => '16:00', 'end' => '19:00'],
+        'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
+        'التمساحية' => ['start' => '22:00', 'end' => '00:00'] 
+    ];
+
+    if (!isset($clinicSchedules[$clinic])) {
+        return response()->json([], 422);
+    }
+
+    $startTime = \Carbon\Carbon::createFromFormat('H:i', $clinicSchedules[$clinic]['start']);
+    $endTime = \Carbon\Carbon::createFromFormat('H:i', $clinicSchedules[$clinic]['end']);
+    
+    // إذا كانت نهاية العيادة منتصف الليل (00:00)، نضيف يوم لنطاق الحساب البرمجي
+    if ($clinicSchedules[$clinic]['end'] === '00:00') {
+        $endTime->addDay();
+    }
+    
+    // جلب الأوقات المحجوزة فعلياً لهذا اليوم والعيادة
+    $bookedAppointments = Appointment::where('clinic', $clinic)
                                     ->whereDate('date_time', $request->date)
                                     ->get()
                                     ->map(function($appointment) {
                                         return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
                                     })->toArray();
 
-    // 3. توليد كل الأوقات (كل 10 دقائق)
+    // توليد الأوقات (كل 10 دقائق)
     $allSlots = [];
     $currentTime = $startTime->copy();
     
     while ($currentTime->lt($endTime)) {
+        // إذا تعدينا منتصف الليل، نعيد تنسيق الساعات بشكل صحيح (مثل 00:00 بدلاً من 24:00)
         $timeString = $currentTime->format('H:i');
         
-        // 4. إضافة الوقت للقائمة إذا لم يكن محجوزاً
         if (!in_array($timeString, $bookedAppointments)) {
             $allSlots[] = $timeString;
         }
