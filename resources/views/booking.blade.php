@@ -10,10 +10,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
     <title>حجز موعد - عيادة د. عمرو</title>
     <style>
-        body { background: linear-gradient(135deg, #005c97, #363795); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .iti { width: 100%; } /* لضبط عرض حقل الهاتف */
-    </style>
+    body { 
+        background: linear-gradient(135deg, #005c97, #363795); 
+        min-height: 100vh; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+    }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+    
+    /* تنسيقات مكتبة الهاتف الضرورية */
+    .iti { width: 100%; display: block; } 
+    
+    /* حل مشكلة ظهور القائمة خلف العناصر */
+    .iti__country-list {
+        z-index: 9999 !important;
+        position: absolute;
+        text-align: right; /* لضمان ظهور النصوص من اليمين */
+    }
+    
+    /* تصحيح مسار صور الأعلام */
+    .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags.png"); }
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags@2x.png"); }
+    }
+</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-w-5xl w-full">
