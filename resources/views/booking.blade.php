@@ -55,7 +55,7 @@
                 <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required class="w-full p-3 border rounded-lg">
                 
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
-    <option value="">يرجى ملء البيانات أعلاه</option>
+    <option value="">تحديد الوقت</option> <!-- هذا هو النص الافتراضي -->
 </select>
 
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">تأكيد الحجز</button>
@@ -64,114 +64,99 @@
     </div>
 
 <script>
- 
     async function updateSlots() {
-        // 1. تعريف المتغيرات لجلب القيم من الحقول
         const patientName = document.getElementById('patient_name').value;
         const phone = document.getElementById('phone').value;
         const clinic = document.getElementById('clinic').value;
         const date = document.querySelector('input[name="appointment_date"]').value;
         const timeSelect = document.getElementById('appointment_time');
 
-        // 2. التحقق: إذا كان هناك حقل فارغ، لا تفعل شيئاً وعطل القائمة
-        // داخل دالة updateSlots في جزء الـ if الذي يفحص البيانات:
-if (!patientName || !phone || !clinic || !date) {
-    timeSelect.disabled = true;
-    timeSelect.classList.add('bg-gray-100');
-    timeSelect.value = '';
-timeSelect.innerHTML = '<option value="">يجب ملء البيانات لتحديد الوقت المتاح</option>';
-    return;
-}
+        // 1. التحقق من البيانات
+        if (!patientName || !phone || !clinic || !date) {
+            timeSelect.disabled = true;
+            timeSelect.classList.add('bg-gray-100');
+            timeSelect.innerHTML = '<option value="">يجب ملء البيانات لتحديد الوقت المتاح</option>';
+            return; // هذا الـ return يوقف الدالة هنا إذا كانت البيانات ناقصة
+        }
 
-        // 3. إذا امتلأت البيانات، قم بتفعيل القائمة
+        // 2. إذا وصلت البيانات إلى هنا، فهذا يعني أن الكل مكتمل
         timeSelect.disabled = false;
         timeSelect.classList.remove('bg-gray-100');
 
-        // 4. استكمال باقي كود الـ fetch كما كان موجوداً لديك
         const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
         
         try {
             const response = await fetch(url);
-            // ... (باقي كود الـ fetch الخاص بك يوضع هنا كما هو تماماً)
-        
-        if (!response.ok) {
-            console.error("خطأ في الاتصال بالسيرفر:", response.status);
-            return;
-        }
-
-        const bookedSlots = await response.json();
-        
-        let startHour, startMinute, endHour, endMinute;
-        if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
-        else if (clinic === 'المنشأة الكبرى') { startHour = 19; startMinute = 30; endHour = 21; endMinute = 30; }
-        else if (clinic === 'التمساحية') { startHour = 22; startMinute = 0; endHour = 0; endMinute = 0; }
-        else return;
-
-        timeSelect.innerHTML = '<option value="">اختر الوقت</option>';
-        let currentHour = startHour;
-        let currentMinute = startMinute;
-
-        while (true) {
-            if (endHour !== 0 && (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute))) break;
-            if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break; 
-
-            let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
-            
-            // تحقق إذا كان الوقت محجوزاً
-            let isBooked = Array.isArray(bookedSlots) && bookedSlots.includes(timeString);
-
-            let option = document.createElement('option');
-            option.value = timeString;
-            option.text = timeString;
-
-            if (isBooked) {
-                option.disabled = true;
-                option.text += ' (محجوز)';
+            if (!response.ok) {
+                console.error("خطأ في الاتصال بالسيرفر:", response.status);
+                return;
             }
-            timeSelect.appendChild(option);
 
-            currentMinute += 10;
-            if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
-            if (currentHour >= 24) currentHour = 0;
+            const bookedSlots = await response.json();
+            
+            let startHour, startMinute, endHour, endMinute;
+            if (clinic === 'القوصية') { startHour = 16; startMinute = 0; endHour = 19; endMinute = 0; }
+            else if (clinic === 'المنشأة الكبرى') { startHour = 19; startMinute = 30; endHour = 21; endMinute = 30; }
+            else if (clinic === 'التمساحية') { startHour = 22; startMinute = 0; endHour = 0; endMinute = 0; }
+            else return;
+
+            timeSelect.innerHTML = '<option value="">اختر الوقت</option>';
+            let currentHour = startHour;
+            let currentMinute = startMinute;
+
+            while (true) {
+                if (endHour !== 0 && (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute))) break;
+                if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break; 
+
+                let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
+                let isBooked = Array.isArray(bookedSlots) && bookedSlots.includes(timeString);
+
+                let option = document.createElement('option');
+                option.value = timeString;
+                option.text = timeString;
+
+                if (isBooked) {
+                    option.disabled = true;
+                    option.text += ' (محجوز)';
+                }
+                timeSelect.appendChild(option);
+
+                currentMinute += 10;
+                if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
+                if (currentHour >= 24) currentHour = 0;
+            }
+        } catch (error) {
+            console.error("خطأ أثناء جلب المواعيد:", error);
         }
-    } catch (error) {
-        console.error("خطأ أثناء جلب المواعيد:", error);
     }
-}
+
+    // معالجة إرسال النموذج
     document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // FormData ستأخذ تلقائياً حقل appointment_type لأننا أعطيناه name="appointment_type" في الـ HTML
-    const formData = new FormData(this);
-    
-    const response = await fetch(this.action, {
-        method: 'POST',
-        body: formData, // سيرسل كل الحقول بما فيها النوع
-        headers: { 
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // تأكد من وجود هذا السطر إذا كنت تواجه خطأ 419
+        e.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+
+        if (response.ok) {
+            alert('تم الحجز بنجاح!');
+            this.reset();
+            updateSlots(); // إعادة ضبط القائمة بعد الحجز
+        } else {
+            alert('حدث خطأ، يرجى المحاولة مرة أخرى.');
         }
     });
 
-    if (response.ok) {
-        alert('تم الحجز بنجاح!');
-        this.reset();
-        updateSlots();
-    } else {
-        alert('حدث خطأ، يرجى المحاولة مرة أخرى.');
-    }
-});
-
+    // إضافة مستمعي الأحداث لجميع الحقول
     document.getElementById('clinic').addEventListener('change', updateSlots);
     document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
-
-    // مراقبة حقول الاسم والهاتف
-document.getElementById('patient_name').addEventListener('input', updateSlots);
-document.getElementById('phone').addEventListener('input', updateSlots);
-
-// (المستمعون الموجودون مسبقاً)
-document.getElementById('clinic').addEventListener('change', updateSlots);
-document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+    document.getElementById('patient_name').addEventListener('input', updateSlots);
+    document.getElementById('phone').addEventListener('input', updateSlots);
 </script>
 </body>
 </html>
