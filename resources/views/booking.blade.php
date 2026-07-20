@@ -14,7 +14,7 @@
 <body class="min-h-screen flex items-center justify-center p-4">
 
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-w-5xl w-full">
-        <div class="md:w-1/2 bg-blue-50 hidden md:block">
+        <div class="w-full md:w-1/2 bg-blue-50 block">
             <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-full object-cover">
         </div>
         
