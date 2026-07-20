@@ -126,48 +126,36 @@ async function updateSlots() {
         if (!clinic || !date) return;
 
         timeSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+        timeSelect.disabled = false;
 
         try {
             const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date);
-            const data = await response.json(); 
-
-            timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
+            const slots = await response.json();
+timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-            // نتحقق مما إذا كانت البيانات مصفوفة مباشرة أو كائن يحتوي على slots
-            const slotsArray = Array.isArray(data) ? data : (data.slots || []);
-            const bookedArray = data.booked || []; // إذا لم يوجد booked، نعتبرها فارغة
-
-            slotsArray.forEach(slotItem => {
-                // التعامل مع كون السلوت نصاً (مثل "10:00") أو كائناً (مثل {time: "10:00"})
-                const timeValue = typeof slotItem === 'object' ? slotItem.time : slotItem;
-                
+            // التأكد من أننا نتعامل دائماً مع مصفوفة مهما كان شكل البيانات القادم من السيرفر
+            const slotsArray = Array.isArray(slots) ? slots : (slots.data || []);
+            
+            slotsArray.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = timeValue;
+                option.value = slot; // القيمة الأصلية 10:00 أو 22:00
                 
-                let [hours, minutes] = timeValue.split(':');
+                let [hours, minutes] = slot.split(':');
                 let h = parseInt(hours);
                 
-                // منطق الوقت
+                // منطق الوقت (التمساحية مسائي، غيرها حسب الساعة)
                 let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
                 if (clinicName.includes('التمساحية') && (h >= 10 && h <= 11)) modifier = 'م';
-                if (h == 0 || h == 12) modifier = (h == 12) ? 'م' : 'ص'; // تعديل بسيط لـ 12
-
+                
                 let displayHours = h % 12 || 12;
-                let timeText = `${displayHours}:${minutes} ${modifier}`;
-
-                // التحقق من الحجز
-                if (bookedArray.includes(timeValue)) {
-                    option.textContent = `${timeText} - محجوز`;
-                    option.disabled = true;
-                } else {
-                    option.textContent = timeText;
-                }
+                option.textContent = `${displayHours}:${minutes} ${modifier}`;
                 
                 timeSelect.appendChild(option);
             });
         } catch (e) {
-            console.error('Error:', e);
-            timeSelect.innerHTML = '<option value="">خطأ: تأكد من تنسيق البيانات</option>';
+            // هنا نرى الخطأ الحقيقي في الـ Console إذا لم يظهر شيء
+            console.error('Error details:', e);
+            timeSelect.innerHTML = '<option value="">خطأ في التحميل (راجع Console)</option>';
         }
     }
 
