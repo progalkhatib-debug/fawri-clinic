@@ -132,16 +132,22 @@
 
             timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-            slots.forEach(slot => {
+           slots.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = slot; // القيمة التي تُرسل للسيرفر
+                option.value = slot; // القيمة الأصلية للسيرفر (مثل 22:00)
                 
-                // تحويل الوقت للعرض (مثال: 19:30 إلى 07:30 م)
+                // تحويل الوقت للعرض
                 let [hours, minutes] = slot.split(':');
-                let modifier = hours >= 12 ? 'م' : 'ص';
-                hours = hours % 12 || 12;
-                option.textContent = `${hours}:${minutes} ${modifier}`; // العرض للمريض
+                let h = parseInt(hours);
                 
+                // تحديد ما إذا كان الوقت "م" أو "ص"
+                let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
+                
+                // جعل الساعة دائماً بين 1 و 12
+                let displayHours = h % 12;
+                if (displayHours === 0) displayHours = 12;
+                
+                option.textContent = `${displayHours}:${minutes} ${modifier}`;
                 timeSelect.appendChild(option);
             });
         } catch (e) {
