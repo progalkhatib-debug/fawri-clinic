@@ -47,58 +47,63 @@ class AppointmentController extends Controller
                       });
 }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'patient_name' => 'required',
-            'phone' => 'required',
-            'appointment_date' => 'required|date|after_or_equal:today',
-            'appointment_time' => 'required',
-            'clinic' => 'required',
-            'appointment_type' => 'required' // أضف هذا السطر
-        ]);
+public function store(Request $request)
+{
+    // 1. إضافة التحقق من حقل مفتاح الدولة الجديد
+    $request->validate([
+        'patient_name'     => 'required',
+        'phone'            => 'required',
+        'country_code'     => 'required', // إضافة هذا السطر للتحقق من كود الدولة
+        'appointment_date' => 'required|date|after_or_equal:today',
+        'appointment_time' => 'required',
+        'clinic'           => 'required',
+        'appointment_type' => 'required'
+    ]);
 
-        $clinicSchedules = [
-            'القوصية' => ['start' => '16:00', 'end' => '19:00'],
-            'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
-            'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
-        ];
+    // 2. دمج مفتاح الدولة مع رقم الهاتف
+    $fullPhone = $request->country_code . $request->phone;
 
-        $time = $request->appointment_time;
-        $clinic = $request->clinic;
+    $clinicSchedules = [
+        'القوصية' => ['start' => '16:00', 'end' => '19:00'],
+        'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
+        'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
+    ];
 
-        if (isset($clinicSchedules[$clinic])) {
-            if ($clinic === 'التمساحية') {
-                if ($time < '22:00') {
-                    return back()->withErrors(['error' => 'الوقت المختار خارج ساعات عمل التمساحية']);
-                }
-            } else {
-                if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
-                    return back()->withErrors(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic]);
-                }
+    $time = $request->appointment_time;
+    $clinic = $request->clinic;
+
+    if (isset($clinicSchedules[$clinic])) {
+        if ($clinic === 'التمساحية') {
+            if ($time < '22:00') {
+                return back()->withErrors(['error' => 'الوقت المختار خارج ساعات عمل التمساحية']);
+            }
+        } else {
+            if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
+                return back()->withErrors(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic]);
             }
         }
-
-        $fullDateTime = $request->appointment_date . ' ' . $time;
-        $exists = Appointment::where('date_time', $fullDateTime)
-                             ->where('clinic', $clinic)
-                             ->exists();
-
-        if ($exists) {
-            return back()->withErrors(['error' => 'عذراً، هذا الموعد محجوز بالفعل.']);
-        }
-
-        Appointment::create([
-            'patient_name' => $request->patient_name,
-            'phone' => $request->phone,
-            'date_time' => $fullDateTime,
-            'clinic' => $clinic,
-            'type' => $request->appointment_type // أضف هذا السطر لحفظ النوع
-        ]);
-
-        return response()->json(['success' => true]);
     }
 
+    $fullDateTime = $request->appointment_date . ' ' . $time;
+    $exists = Appointment::where('date_time', $fullDateTime)
+                         ->where('clinic', $clinic)
+                         ->exists();
+
+    if ($exists) {
+        return back()->withErrors(['error' => 'عذراً، هذا الموعد محجوز بالفعل.']);
+    }
+
+    // 3. استخدام $fullPhone هنا بدلاً من $request->phone
+    Appointment::create([
+        'patient_name' => $request->patient_name,
+        'phone'        => $fullPhone, 
+        'date_time'    => $fullDateTime,
+        'clinic'       => $clinic,
+        'type'         => $request->appointment_type 
+    ]);
+
+    return response()->json(['success' => true]);
+}
     // حذف الحجز
     public function destroy(int $id)
     {
