@@ -79,7 +79,7 @@ if (!patientName || !phone || !clinic || !date) {
     timeSelect.disabled = true;
     timeSelect.classList.add('bg-gray-100');
     timeSelect.value = '';
-    timeSelect.innerHTML = '<option value="">يرجى ملء البيانات أولاً</option>'; // هذا السطر يمسح أي وقت سابق
+timeSelect.innerHTML = '<option value="">يجب ملء البيانات لتحديد الوقت المتاح</option>';
     return;
 }
 
