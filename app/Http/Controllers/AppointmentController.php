@@ -39,8 +39,9 @@ class AppointmentController extends Controller
     
    public function getBookedSlots(Request $request)
 {
+    // استخدام whereDate هو الأضمن لأنه يتجاهل التنسيق ويقارن التاريخ فقط
     $slots = Appointment::where('clinic', $request->clinic)
-                        ->where('date_time', 'like', $request->date . '%')
+                        ->whereDate('date_time', $request->date)
                         ->get()
                         ->map(function($appointment) {
                             return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');

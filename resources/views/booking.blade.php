@@ -146,13 +146,15 @@
             console.error('Error fetching slots:', e); 
         }
     }
+// نضع الكود هنا للتأكد من تحميل كل عناصر الصفحة أولاً
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('clinic').addEventListener('change', updateSlots);
+        document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+    });
 
     document.getElementById('bookingForm').addEventListener('submit', function(e) {
         document.getElementById('full_phone').value = iti.getNumber();
     });
-
-    document.getElementById('clinic').addEventListener('change', updateSlots);
-    document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
     </script>
 </body>
 </html>
