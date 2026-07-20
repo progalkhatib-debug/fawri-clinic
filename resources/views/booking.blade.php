@@ -126,13 +126,27 @@
 
         if (!clinic || !date) return;
 
+        // 1. مسح الخيارات القديمة (ترك خيار "تحديد الوقت" فقط)
+        timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
+
         const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
         try {
             const response = await fetch(url);
-            const bookedSlots = await response.json();
+            const slots = await response.json(); // نفترض أن السيرفر يرجع مصفوفة أوقات
+
+            // 2. إضافة الأوقات الجديدة
+            slots.forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot;
+                option.textContent = slot;
+                timeSelect.appendChild(option);
+            });
+
             timeSelect.disabled = false;
             timeSelect.classList.remove('bg-gray-100');
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error('Error fetching slots:', e); 
+        }
     }
 
     document.getElementById('bookingForm').addEventListener('submit', function(e) {
