@@ -139,18 +139,21 @@ timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
            // داخل الـ Script في ملف الـ Blade
 slotsArray.forEach(slot => {
     const option = document.createElement('option');
-    option.value = slot; // القيمة الحقيقية (مثل 22:00) تُرسل للسيرفر
+    option.value = slot; 
     
     let [hours, minutes] = slot.split(':');
     let h = parseInt(hours);
     
-    // منطق العرض للمستخدم (12 ساعة)
-    let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
-    
-    // استثناء التمساحية: الساعة 22 و 23 تظهر 10 و 11 م
-    // الساعة 00 (منتصف الليل) تظهر 12 ص
+    // منطق العرض:
+    let modifier = 'م'; // افتراضياً كل العيادات مسائية
     let displayHours = h % 12;
     if (displayHours === 0) displayHours = 12;
+
+    // استثناء خاص لعيادة التمساحية (الساعة 00 أو 24 هي 12 ص)
+    if (clinicName.includes('التمساحية') && (h === 0 || h === 24)) {
+        modifier = 'ص'; 
+        displayHours = 12;
+    }
     
     option.textContent = `${displayHours}:${minutes} ${modifier}`;
     timeSelect.appendChild(option);
