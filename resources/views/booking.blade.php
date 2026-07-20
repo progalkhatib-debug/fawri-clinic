@@ -132,18 +132,19 @@
 
             timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-           slots.forEach(slot => {
+          slots.forEach(slot => {
                 const option = document.createElement('option');
                 option.value = slot; 
                 
+                // التأكد من استخراج الساعات بشكل دقيق
                 let [hours, minutes] = slot.split(':');
-                let h = parseInt(hours);
+                let h = parseInt(hours, 10); // إضافة 10 لضمان قراءتها كرقم عشري
                 
-                // التعديل هنا: تحديد ص/م بناءً على الساعة
-                // المواعيد من 12 ظهراً وحتى 11:59 مساءً تكون "م"
-                // المواعيد من 12 ليلاً وحتى 11:59 صباحاً تكون "ص"
+                // تحديد الفترة بناءً على الساعة
+                // المواعيد من 12 ظهراً (12:00) إلى 11:59 ليلاً (23:59) هي "م"
                 let modifier = (h >= 12) ? 'م' : 'ص';
                 
+                // تحويل الساعة لتنسيق 12
                 let displayHours = h % 12;
                 if (displayHours === 0) displayHours = 12;
                 
