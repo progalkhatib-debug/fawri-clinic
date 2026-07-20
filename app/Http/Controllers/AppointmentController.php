@@ -86,36 +86,26 @@ public function store(Request $request)
             'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
             'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
         ];
-
-        $time = $request->appointment_time;
+$time = $request->appointment_time;
         $clinic = $request->clinic;
 
-        // دالة مساعدة لتصحيح وتوحيد تنسيق الوقت إلى 24 ساعة إن كان أرسل بصيغة أخرى
-        // (إذا كان الوقت مرسلاً مثلاً بصيغة 10:00 م، سيحوله إلى 22:00)
+        // إضافة هذا الجزء لتحويل الوقت إلى صيغة 24 ساعة قبل الفحص
         if (str_contains($time, 'م') || str_contains($time, 'ص')) {
-            // معالجة الصيغة العربية لو وجدت
             $timeClean = str_replace(['م', 'ص', ' '], '', $time);
             list($h, $m) = explode(':', $timeClean);
-            if (str_contains($time, 'م') && (int)$h < 12) {
-                $h = (int)$h + 12;
-            } elseif (str_contains($time, 'ص') && (int)$h == 12) {
-                $h = '00';
-            }
+            if (str_contains($time, 'م') && (int)$h < 12) $h = (int)$h + 12;
+            elseif (str_contains($time, 'ص') && (int)$h == 12) $h = '00';
             $time = sprintf('%02d:%s', $h, $m);
         }
 
-        // داخل دالة store في الـ Controller
-// لا داعي لتحويل الوقت إذا كان المتصفح يرسل 22:00، 
-// ولكن تأكد من أن التحقق في الـ Controller يستخدم صيغة 24 ساعة:
-
-if ($clinic === 'التمساحية') {
-    // 22:00 (10 م) إلى 23:59 (11:59 م) 
-    // إذا كان الموعد 00:00 (12 ص)، تأكد أن السيرفر يقبله.
-    if (($time >= '22:00' && $time <= '23:59') || $time === '00:00') {
-        // الوقت مقبول
-    } else {
-        return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
-    }
+        if ($clinic === 'التمساحية') {
+            // 22:00 (10 م) إلى 23:59 (11:59 م) 
+            // إذا كان الموعد 00:00 (12 ص)، تأكد أن السيرفر يقبله.
+            if (($time >= '22:00' && $time <= '23:59') || $time === '00:00') {
+                // الوقت مقبول
+            } else {
+                return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
+            }
 
         } elseif (isset($clinicSchedules[$clinic])) {
             // التحقق لباقي العيادات
