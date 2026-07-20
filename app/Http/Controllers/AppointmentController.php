@@ -46,22 +46,17 @@ class AppointmentController extends Controller
                           return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
                       });
 }
-
 public function store(Request $request)
 {
-    // 1. إضافة التحقق من حقل مفتاح الدولة الجديد
+    // 1. التحقق من البيانات (استخدمنا full_phone القادم من المكتبة)
     $request->validate([
         'patient_name'     => 'required',
-        'phone'            => 'required',
-        'country_code'     => 'required', // إضافة هذا السطر للتحقق من كود الدولة
+        'full_phone'       => 'required', // هذا هو الحقل المخفي الذي ترسله المكتبة
         'appointment_date' => 'required|date|after_or_equal:today',
         'appointment_time' => 'required',
         'clinic'           => 'required',
         'appointment_type' => 'required'
     ]);
-
-    // 2. دمج مفتاح الدولة مع رقم الهاتف
-    $fullPhone = $request->country_code . $request->phone;
 
     $clinicSchedules = [
         'القوصية' => ['start' => '16:00', 'end' => '19:00'],
@@ -72,14 +67,15 @@ public function store(Request $request)
     $time = $request->appointment_time;
     $clinic = $request->clinic;
 
+    // التحقق من مواعيد العيادات
     if (isset($clinicSchedules[$clinic])) {
         if ($clinic === 'التمساحية') {
             if ($time < '22:00') {
-                return back()->withErrors(['error' => 'الوقت المختار خارج ساعات عمل التمساحية']);
+                return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
             }
         } else {
             if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
-                return back()->withErrors(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic]);
+                return response()->json(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic], 422);
             }
         }
     }
@@ -90,13 +86,13 @@ public function store(Request $request)
                          ->exists();
 
     if ($exists) {
-        return back()->withErrors(['error' => 'عذراً، هذا الموعد محجوز بالفعل.']);
+        return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
     }
 
-    // 3. استخدام $fullPhone هنا بدلاً من $request->phone
+    // 2. الحفظ في قاعدة البيانات
     Appointment::create([
         'patient_name' => $request->patient_name,
-        'phone'        => $fullPhone, 
+        'phone'        => $request->full_phone, // الرقم يأتي جاهزاً من المكتبة
         'date_time'    => $fullDateTime,
         'clinic'       => $clinic,
         'type'         => $request->appointment_type 
