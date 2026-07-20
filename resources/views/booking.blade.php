@@ -116,8 +116,10 @@
         return hours + ':' + minutes;
     }
 
-  async function updateSlots() {
-        const clinic = document.getElementById('clinic').value;
+async function updateSlots() {
+        const clinicSelect = document.getElementById('clinic');
+        const clinic = clinicSelect.value;
+        const clinicName = clinicSelect.options[clinicSelect.selectedIndex].text; // اسم العيادة
         const date = document.querySelector('input[name="appointment_date"]').value;
         const timeSelect = document.getElementById('appointment_time');
 
@@ -128,27 +130,37 @@
 
         try {
             const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date);
-            const slots = await response.json();
+            const data = await response.json(); // نفترض أن البيانات تأتي كـ { slots: [...], booked: [...] }
 
             timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-          slots.forEach(slot => {
+            // بيانات المواعيد (تأكد أن السيرفر يرسل المواعيد المتاحة والمحجوزة)
+            data.slots.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = slot; 
+                option.value = slot.time;
                 
-                // التأكد من استخراج الساعات بشكل دقيق
-                let [hours, minutes] = slot.split(':');
-                let h = parseInt(hours, 10); // إضافة 10 لضمان قراءتها كرقم عشري
+                // تحديد ما إذا كان الموعد "م" أو "ص" بناءً على اسم العيادة أو منطق الوقت
+                // بما أن أغلب عياداتك مسائية، سنقوم بتحويل منطقي ذكي
+                let [hours, minutes] = slot.time.split(':');
+                let h = parseInt(hours);
                 
-                // تحديد الفترة بناءً على الساعة
-                // المواعيد من 12 ظهراً (12:00) إلى 11:59 ليلاً (23:59) هي "م"
-                let modifier = (h >= 12) ? 'م' : 'ص';
+                // منطق التمييز:
+                // إذا كانت العيادة "التمساحية" والساعة 10 أو 11 فهي "م"، أما 12 فهي "ص"
+                // غير ذلك، الساعة 12 فما فوق هي "م"
+                let modifier = (h >= 12 && h < 24) ? 'م' : 'ص';
+                if (clinicName.includes('التمساحية') && (h == 10 || h == 11)) modifier = 'م';
+
+                let displayHours = h % 12 || 12;
+                let timeText = `${displayHours}:${minutes} ${modifier}`;
+
+                // إضافة علامة "محجوز" إذا كان الموعد في قائمة المحجوزات
+                if (data.booked.includes(slot.time)) {
+                    option.textContent = `${timeText} - محجوز`;
+                    option.disabled = true; // منع اختيار الموعد المحجوز
+                } else {
+                    option.textContent = timeText;
+                }
                 
-                // تحويل الساعة لتنسيق 12
-                let displayHours = h % 12;
-                if (displayHours === 0) displayHours = 12;
-                
-                option.textContent = `${displayHours}:${minutes} ${modifier}`;
                 timeSelect.appendChild(option);
             });
         } catch (e) {
