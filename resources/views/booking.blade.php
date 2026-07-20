@@ -108,18 +108,28 @@
                 if (endHour !== 0 && (currentHour > endHour || (currentHour === endHour && currentMinute >= endMinute))) break;
                 if (endHour === 0 && currentHour === 0 && currentMinute >= 0) break; 
 
-                let timeString = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
-                let isBooked = Array.isArray(bookedSlots) && bookedSlots.includes(timeString);
+                // ... داخل حلقة while ...
+let timeString24 = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
+            
+// تحويل الوقت إلى نظام 12 ساعة
+let displayHour = currentHour % 12 || 12;
+let ampm = currentHour >= 12 ? 'م' : 'ص';
+// إضافة مسافات لترك فراغ بين الرقم والكلمة
+let timeString12 = displayHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute + '      ' + ampm;
 
-                let option = document.createElement('option');
-                option.value = timeString;
-                option.text = timeString;
+// تحقق إذا كان الوقت محجوزاً (نستخدم وقت 24 للمقارنة)
+let isBooked = Array.isArray(bookedSlots) && bookedSlots.includes(timeString24);
 
-                if (isBooked) {
-                    option.disabled = true;
-                    option.text += ' (محجوز)';
-                }
-                timeSelect.appendChild(option);
+let option = document.createElement('option');
+option.value = timeString24; // القيمة المرسلة للسيرفر تظل بتنسيق 24 ساعة لضمان عدم حدوث خطأ
+option.text = timeString12;  // النص الظاهر للمريض بتنسيق 12 ساعة
+
+if (isBooked) {
+    option.disabled = true;
+    option.text += ' (محجوز)';
+}
+timeSelect.appendChild(option);
+// ...
 
                 currentMinute += 10;
                 if (currentMinute >= 60) { currentMinute = 0; currentHour++; }
