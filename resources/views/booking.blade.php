@@ -41,10 +41,12 @@
         <div class="w-full md:w-1/2 bg-blue-50 block">
             <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-full object-cover">
         </div>
-        <div class="md:w-1/2 p-8">
-            <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">حجز موعد ومتابعة</h1>
-            <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-4">
-                @csrf
+        <div class="md:w-1/2 p-8 pt-4"> <!-- قمنا بتغيير p-8 إلى p-8 pt-4 لتقليل المسافة العلوية فقط -->
+    
+    <h1 class="text-2xl font-bold mb-4 text-center text-blue-800">حجز موعد ومتابعة</h1> <!-- صغرنا الخط قليلاً ليوفر مساحة -->
+    
+    <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-3"> <!-- صغرنا مسافات العناصر لتقليل الطول الكلي -->
+        @csrf
                 <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border">
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="appointment_type" value="new" checked class="form-radio h-5 w-5 text-blue-600">
@@ -77,28 +79,24 @@
             </form>
         </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput-jquery.min.js"></script>
-   <script>
+    <script>
+    // قائمة الدول باللغة العربية
+    const arabicCountries = {
+        'af': 'أفغانستان', 'al': 'ألبانيا', 'dz': 'الجزائر', 'ad': 'أندورا', 'ao': 'أنغولا', 'ag': 'أنتيغوا وبربودا', 'ar': 'الأرجنتين', 'am': 'أرمينيا', 'au': 'أستراليا', 'at': 'النمسا', 'az': 'أذربيجان', 'bs': 'جزر البهاما', 'bh': 'البحرين', 'bd': 'بنغلاديش', 'bb': 'بربادوس', 'by': 'بيلاروسيا', 'be': 'بلجيكا', 'bz': 'بليز', 'bj': 'بنين', 'bt': 'بوتان', 'bo': 'بوليفيا', 'ba': 'البوسنة والهرسك', 'bw': 'بوتسوانا', 'br': 'البرازيل', 'bn': 'بروناي', 'bg': 'بلغاريا', 'bf': 'بوركينا فاسو', 'bi': 'بوروندي', 'cv': 'الرأس الأخضر', 'kh': 'كمبوديا', 'cm': 'الكاميرون', 'ca': 'كندا', 'cf': 'جمهورية أفريقيا الوسطى', 'td': 'تشاد', 'cl': 'تشيلي', 'cn': 'الصين', 'co': 'كولومبيا', 'km': 'جزر القمر', 'cg': 'الكونغو', 'cr': 'كوستاريكا', 'hr': 'كرواتيا', 'cu': 'كوبا', 'cy': 'قبرص', 'cz': 'جمهورية التشيك', 'dk': 'الدنمارك', 'dj': 'جيبوتي', 'dm': 'دومينيكا', 'do': 'جمهورية الدومينيكان', 'ec': 'الإكوادور', 'eg': 'مصر', 'sv': 'السلفادور', 'gq': 'غينيا الاستوائية', 'er': 'إريتريا', 'ee': 'إستونيا', 'et': 'إثيوبيا', 'fj': 'فيجي', 'fi': 'فنلندا', 'fr': 'فرنسا', 'ga': 'الغابون', 'gm': 'غامبيا', 'ge': 'جورجيا', 'de': 'ألمانيا', 'gh': 'غانا', 'gr': 'اليونان', 'gd': 'غرينادا', 'gt': 'غواتيمالا', 'gn': 'غينيا', 'gw': 'غينيا بيساو', 'gy': 'غيانا', 'ht': 'هايتي', 'hn': 'هندوراس', 'hu': 'المجر', 'is': 'آيسلندا', 'in': 'الهند', 'id': 'إندونيسيا', 'ir': 'إيران', 'iq': 'العراق', 'ie': 'أيرلندا', 'il': 'إسرائيل', 'it': 'إيطاليا', 'jm': 'جامايكا', 'jp': 'اليابان', 'jo': 'الأردن', 'kz': 'كازاخستان', 'ke': 'كينيا', 'ki': 'كيريباتي', 'kw': 'الكويت', 'kg': 'قيرغيزستان', 'la': 'لاوس', 'lv': 'لاتفيا', 'lb': 'لبنان', 'ls': 'ليسوتو', 'lr': 'ليبيريا', 'ly': 'ليبيا', 'li': 'ليختنشتاين', 'lt': 'ليتوانيا', 'lu': 'لوكسمبورغ', 'mk': 'مقدونيا', 'mg': 'مدغشقر', 'mw': 'مالاوي', 'my': 'ماليزيا', 'mv': 'جزر المالديف', 'ml': 'مالي', 'mt': 'مالطا', 'mh': 'جزر مارشال', 'mr': 'موريتانيا', 'mu': 'موريشيوس', 'mx': 'المكسيك', 'fm': 'ولايات ميكرونيسيا المتحدة', 'md': 'مولدوفا', 'mc': 'موناكو', 'mn': 'منغوليا', 'me': 'الجبل الأسود', 'ma': 'المغرب', 'mz': 'موزمبيق', 'mm': 'ميانمار', 'na': 'ناميبيا', 'nr': 'ناورو', 'np': 'نيبال', 'nl': 'هولندا', 'nz': 'نيوزيلندا', 'ni': 'نيكاراغوا', 'ne': 'النيجر', 'ng': 'نيجيريا', 'no': 'النرويج', 'om': 'عُمان', 'pk': 'باكستان', 'pw': 'بالاو', 'ps': 'فلسطين', 'pa': 'بنما', 'pg': 'بابوا غينيا الجديدة', 'py': 'باراغواي', 'pe': 'بيرو', 'ph': 'الفلبين', 'pl': 'بولندا', 'pt': 'البرتغال', 'qa': 'قطر', 'ro': 'رومانيا', 'ru': 'روسيا', 'rw': 'رواندا', 'kn': 'سانت كيتس ونيفيس', 'lc': 'سانت لوسيا', 'vc': 'سانت فينسنت والغرينادين', 'ws': 'ساموا', 'sm': 'سان مارينو', 'st': 'ساو تومي وبرينسيب', 'sa': 'السعودية', 'sn': 'السنغال', 'rs': 'صربيا', 'sc': 'سيشل', 'sl': 'سيراليون', 'sg': 'سنغافورة', 'sk': 'سلوفاكيا', 'si': 'سلوفينيا', 'sb': 'جزر سليمان', 'so': 'الصومال', 'za': 'جنوب أفريقيا', 'kr': 'كوريا الجنوبية', 'ss': 'جنوب السودان', 'es': 'إسبانيا', 'lk': 'سريلانكا', 'sd': 'السودان', 'sr': 'سورينام', 'sz': 'إسواتيني', 'se': 'السويد', 'ch': 'سويسرا', 'sy': 'سوريا', 'tw': 'تايوان', 'tj': 'طاجيكستان', 'tz': 'تنزانيا', 'th': 'تايلاند', 'tl': 'تيمور الشرقية', 'tg': 'توغو', 'to': 'تونغا', 'tt': 'ترينيداد وتوباغو', 'tn': 'تونس', 'tr': 'تركيا', 'tm': 'تركمانستان', 'tv': 'توفالو', 'ug': 'أوغندا', 'ua': 'أوكرانيا', 'ae': 'الإمارات', 'gb': 'المملكة المتحدة', 'us': 'الولايات المتحدة', 'uy': 'الأوروغواي', 'uz': 'أوزبكستان', 'vu': 'فانواتو', 'va': 'مدينة الفاتيكان', 've': 'فنزويلا', 'vn': 'فيتنام', 'ye': 'اليمن', 'zm': 'زامبيا', 'zw': 'زيمبابوي'
+    };
+
     // تفعيل مكتبة الأعلام
     const phoneInput = document.querySelector("#phone");
     
-    // جلب أسماء الدول بالعربية
     const iti = window.intlTelInput(phoneInput, {
         initialCountry: "eg",
         separateDialCode: true,
-        // تفعيل البحث داخل القائمة
-        searchCountry: true, 
-        // استخدام خاصية التوطين (الترجمة)
-        // ملاحظة: الإصدارات الحديثة من المكتبة تدعم التغيير المباشر للأسماء
+        searchCountry: true, // زر البحث يظهر تلقائياً عند فتح القائمة
+        localizedCountries: arabicCountries, // تفعيل الأسماء العربية
         utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
     });
-
-    // لجعل الأسماء بالعربية، نقوم بتعديل النصوص برمجياً بعد تحميل المكتبة
-    // هذه الطريقة هي الأضمن لأن المكتبة قد لا تجد كل الدول بالعربية تلقائياً
-    const countryData = window.intlTelInputGlobals.getCountryData();
-    // يمكنك هنا دمج قائمة بالأسماء العربية إذا أردت تخصيصاً كاملاً
 
     async function updateSlots() {
         const clinic = document.getElementById('clinic').value;
@@ -113,7 +111,6 @@
             const bookedSlots = await response.json();
             timeSelect.disabled = false;
             timeSelect.classList.remove('bg-gray-100');
-            // ... باقي المنطق الخاص بك ...
         } catch (e) { console.error(e); }
     }
 
@@ -123,6 +120,6 @@
 
     document.getElementById('clinic').addEventListener('change', updateSlots);
     document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
-</script>
+    </script>
 </body>
 </html>
