@@ -74,12 +74,13 @@
         const timeSelect = document.getElementById('appointment_time');
 
         // 2. التحقق: إذا كان هناك حقل فارغ، لا تفعل شيئاً وعطل القائمة
-        if (!patientName || !phone || !clinic || !date) {
-            timeSelect.disabled = true; // تعطيل القائمة
-            timeSelect.classList.add('bg-gray-100'); // تغيير اللون للرمادي
-            timeSelect.innerHTML = '<option value="">يرجى ملء البيانات أولاً</option>';
-            return;
-        }
+        // داخل دالة updateSlots في جزء الـ if الذي يفحص البيانات:
+if (!patientName || !phone || !clinic || !date) {
+    timeSelect.disabled = true;
+    timeSelect.classList.add('bg-gray-100');
+    timeSelect.innerHTML = '<option value="">يرجى ملء البيانات أولاً</option>'; // هذا السطر يمسح أي وقت سابق
+    return;
+}
 
         // 3. إذا امتلأت البيانات، قم بتفعيل القائمة
         timeSelect.disabled = false;
@@ -162,6 +163,14 @@
 
     document.getElementById('clinic').addEventListener('change', updateSlots);
     document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+
+    // مراقبة حقول الاسم والهاتف
+document.getElementById('patient_name').addEventListener('input', updateSlots);
+document.getElementById('phone').addEventListener('input', updateSlots);
+
+// (المستمعون الموجودون مسبقاً)
+document.getElementById('clinic').addEventListener('change', updateSlots);
+document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
 </script>
 </body>
 </html>
