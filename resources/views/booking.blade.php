@@ -146,14 +146,41 @@
             console.error('Error fetching slots:', e); 
         }
     }
-// نضع الكود هنا للتأكد من تحميل كل عناصر الصفحة أولاً
+    // تفعيل التحديث التلقائي عند تغيير العيادة أو التاريخ
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('clinic').addEventListener('change', updateSlots);
         document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
     });
-
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+// نضع الكود هنا للتأكد من تحميل كل عناصر الصفحة أولاً
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        // نمنع الإرسال الافتراضي للنموذج حتى نتحقق من الرد
+        e.preventDefault();
+        
         document.getElementById('full_phone').value = iti.getNumber();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('تم حجز الموعد بنجاح!');
+                window.location.reload(); // إعادة تحميل الصفحة لتفريغ البيانات
+            } else if (data.error) {
+                alert(data.error); // هنا ستظهر رسالة "الموعد محجوز" كرسالة تنبيه واضحة
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء الاتصال بالسيرفر');
+        });
     });
     </script>
 </body>
