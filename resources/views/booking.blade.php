@@ -29,6 +29,8 @@
         text-align: right; /* لضمان ظهور النصوص من اليمين */
         direction: ltr !important; /* للحفاظ على ترتيب الأرقام والبحث */
         width: 300px !important;    /* عرض ثابت لتظهر كاملة */
+        max-height: 250px !important; /* تحديد أقصى ارتفاع للقائمة */
+        overflow-y: auto !important; /* تفعيل التمرير داخل القائمة */
     }
 
     /* تنسيق صندوق البحث ليظهر بوضوح داخل القائمة */
@@ -39,6 +41,7 @@
         border: 1px solid #ccc !important;
         border-radius: 4px !important;
         margin-bottom: 5px !important;
+        box-sizing: border-box !important; /* لضمان عدم خروج الصندوق عن العرض */
     }
     
     /* تصحيح مسار صور الأعلام */
@@ -94,8 +97,9 @@
             </form>
         </div>
     </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput-jquery.min.js"></script>
+<!-- استبدل الروابط القديمة بهذه الروابط -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
     <script>
     // قائمة الدول باللغة العربية
     const arabicCountries = {
@@ -108,9 +112,11 @@
     const iti = window.intlTelInput(phoneInput, {
         initialCountry: "eg",
         separateDialCode: true,
-        searchCountry: true, // زر البحث يظهر تلقائياً عند فتح القائمة
-        localizedCountries: arabicCountries, // تفعيل الأسماء العربية
-        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+        // هذا السطر هو المسؤول عن إظهار صندوق البحث
+        showSearchClass: true, 
+        searchCountry: true,
+        localizedCountries: arabicCountries, // القائمة التي أنشأناها سابقاً
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/utils.js"
     });
 
     async function updateSlots() {
