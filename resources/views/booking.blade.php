@@ -54,8 +54,8 @@
 
                 <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required class="w-full p-3 border rounded-lg">
                 
-                <select name="appointment_time" id="appointment_time" required class="w-full p-3 border rounded-lg">
-    <option value="">اختر الوقت بعد اختيار العيادة</option>
+                <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
+    <option value="">يرجى ملء البيانات أعلاه</option>
 </select>
 
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">تأكيد الحجز</button>
@@ -64,18 +64,33 @@
     </div>
 
 <script>
+ 
     async function updateSlots() {
-    const clinic = document.getElementById('clinic').value;
-    const date = document.querySelector('input[name="appointment_date"]').value;
-    const timeSelect = document.getElementById('appointment_time');
+        // 1. تعريف المتغيرات لجلب القيم من الحقول
+        const patientName = document.getElementById('patient_name').value;
+        const phone = document.getElementById('phone').value;
+        const clinic = document.getElementById('clinic').value;
+        const date = document.querySelector('input[name="appointment_date"]').value;
+        const timeSelect = document.getElementById('appointment_time');
 
-    if (!clinic || !date) return;
+        // 2. التحقق: إذا كان هناك حقل فارغ، لا تفعل شيئاً وعطل القائمة
+        if (!patientName || !phone || !clinic || !date) {
+            timeSelect.disabled = true; // تعطيل القائمة
+            timeSelect.classList.add('bg-gray-100'); // تغيير اللون للرمادي
+            timeSelect.innerHTML = '<option value="">يرجى ملء البيانات أولاً</option>';
+            return;
+        }
 
-    // استخدام مسار كامل وثابت لضمان الوصول للسيرفر
-    const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
-    
-    try {
-        const response = await fetch(url);
+        // 3. إذا امتلأت البيانات، قم بتفعيل القائمة
+        timeSelect.disabled = false;
+        timeSelect.classList.remove('bg-gray-100');
+
+        // 4. استكمال باقي كود الـ fetch كما كان موجوداً لديك
+        const url = `/get-booked-slots?clinic=${encodeURIComponent(clinic)}&date=${date}`;
+        
+        try {
+            const response = await fetch(url);
+            // ... (باقي كود الـ fetch الخاص بك يوضع هنا كما هو تماماً)
         
         if (!response.ok) {
             console.error("خطأ في الاتصال بالسيرفر:", response.status);
