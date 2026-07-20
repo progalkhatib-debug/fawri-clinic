@@ -176,6 +176,4 @@ public function uploadImage(Request $request)
     }
     return response()->json(['error' => 'No file'], 400);
 }
-
-
 }

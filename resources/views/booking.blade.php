@@ -97,6 +97,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
     <script>
+    // 1. إضافة كود تهيئة المكتبة ليعمل حقل الهاتف
+    const phoneInputField = document.querySelector("#phone");
+    const iti = window.intlTelInput(phoneInputField, {
+        initialCountry: "eg",
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/utils.js",
+    });
+
     // دالة تحويل الوقت من تنسيق "م" إلى 24 ساعة (ليناسب السيرفر)
     function convertTo24Hour(timeString) {
         let [time, modifier] = timeString.split(' ');
