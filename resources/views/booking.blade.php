@@ -116,18 +116,17 @@
         return hours + ':' + minutes;
     }
 
-    async function updateSlots() {
+  async function updateSlots() {
         const clinic = document.getElementById('clinic').value;
-        const date = document.querySelector('input[name="appointment_date"]').value; // الحصول على التاريخ
+        const date = document.querySelector('input[name="appointment_date"]').value;
         const timeSelect = document.getElementById('appointment_time');
 
-        if (!clinic || !date) return; // لا تجلب بيانات إلا إذا تم اختيار العيادة والتاريخ
+        if (!clinic || !date) return;
 
         timeSelect.innerHTML = '<option value="">جاري التحميل...</option>';
-        timeSelect.disabled = false; // تفعيل القائمة لتتمكن من الضغط عليها
+        timeSelect.disabled = false;
 
         try {
-            // جلب المواعيد من السيرفر مع إرسال التاريخ والعيادة
             const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date);
             const slots = await response.json();
 
@@ -135,8 +134,14 @@
             
             slots.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = convertTo24Hour(slot); // إرسال 19:30 للسيرفر
-                option.textContent = slot;          // عرض 07:30 م للمريض
+                option.value = slot; // القيمة التي تُرسل للسيرفر
+                
+                // تحويل الوقت للعرض (مثال: 19:30 إلى 07:30 م)
+                let [hours, minutes] = slot.split(':');
+                let modifier = hours >= 12 ? 'م' : 'ص';
+                hours = hours % 12 || 12;
+                option.textContent = `${hours}:${minutes} ${modifier}`; // العرض للمريض
+                
                 timeSelect.appendChild(option);
             });
         } catch (e) {
