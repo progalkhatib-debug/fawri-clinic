@@ -39,14 +39,34 @@ class AppointmentController extends Controller
     
  public function getBookedSlots(Request $request)
 {
-    $slots = Appointment::where('clinic', $request->clinic)
-                        ->whereDate('date_time', $request->date)
-                        ->get()
-                        ->map(function($appointment) {
-                            return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
-                        });
+    // 1. تعريف فترة العمل للعيادة (مثلاً من 10:00 إلى 12:00)
+    $startTime = \Carbon\Carbon::createFromTime(10, 0);
+    $endTime = \Carbon\Carbon::createFromTime(12, 0);
+    
+    // 2. جلب الأوقات المحجوزة فعلياً من قاعدة البيانات لهذا اليوم
+    $bookedAppointments = Appointment::where('clinic', $request->clinic)
+                                    ->whereDate('date_time', $request->date)
+                                    ->get()
+                                    ->map(function($appointment) {
+                                        return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
+                                    })->toArray();
 
-    return response()->json($slots);
+    // 3. توليد كل الأوقات (كل 10 دقائق)
+    $allSlots = [];
+    $currentTime = $startTime->copy();
+    
+    while ($currentTime->lt($endTime)) {
+        $timeString = $currentTime->format('H:i');
+        
+        // 4. إضافة الوقت للقائمة إذا لم يكن محجوزاً
+        if (!in_array($timeString, $bookedAppointments)) {
+            $allSlots[] = $timeString;
+        }
+        
+        $currentTime->addMinutes(10);
+    }
+
+    return response()->json($allSlots);
 }
 public function store(Request $request)
 {
