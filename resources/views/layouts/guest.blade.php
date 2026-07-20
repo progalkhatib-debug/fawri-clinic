@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
-   <style>
+  <style>
     /* جعل الصفحة تحتوي العناصر بشكل عمودي */
     .page-wrapper {
         min-height: 97vh;
@@ -15,21 +15,21 @@
         align-items: center;
         justify-content: center;
         background-color: #f3f4f6;
-        padding: 20px;
-        gap: 20px; /* مسافة بين الصورة والنموذج */
+        padding: 10px; /* تم تقليل الـ padding من 20px إلى 10px */
+        gap: 10px; /* تم تقليل المسافة بين الصورة والنموذج من 20px إلى 10px */
     }
 
     /* حاوية اللوجو - تصبح في الأعلى */
     .logo-container {
         max-width: 380px; /* نفس عرض النموذج لتناسبه */
         width: 100%;
-        height: 250px; /* تقليل الارتفاع قليلاً ليتناسب مع العرض الجديد */
+        height: 180px; /* تم تقليل الارتفاع من 250px إلى 180px ليناسب شاشة الهاتف */
     }
 
     .logo-container img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain; /* تم تغييرها من cover إلى contain ليظهر كامل اللوجو دون قص */
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
@@ -39,7 +39,7 @@
         width: 100%;
         max-width: 380px;
         background: #ffffff;
-        padding: 35px;
+        padding: 20px; /* تم تقليل الحشو الداخلي من 35px إلى 20px لتوفير مساحة */
         border-radius: 12px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     }
