@@ -40,6 +40,16 @@ class AppointmentController extends Controller
 public function getBookedSlots(Request $request)
 {
     $clinic = $request->clinic;
+    $date = $request->date;
+
+    // إضافة شرط منع يوم الجمعة وإرجاع مصفوفات فارغة
+    $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
+    if ($dayOfWeek === \Carbon\Carbon::FRIDAY) {
+        return response()->json([
+            'all_slots' => [],
+            'booked_slots' => []
+        ]);
+    }
     
     // تعريف جداول العيادات لتحديد بداية ونهاية كل عيادة بدقة
     $clinicSchedules = [
@@ -76,14 +86,17 @@ public function getBookedSlots(Request $request)
         // إذا تعدينا منتصف الليل، نعيد تنسيق الساعات بشكل صحيح (مثل 00:00 بدلاً من 24:00)
         $timeString = $currentTime->format('H:i');
         
-        if (!in_array($timeString, $bookedAppointments)) {
-            $allSlots[] = $timeString;
-        }
+        // تعديل طفيف لجمع كل الأوقات (المتاحة والمحجوزة) ليتوافق مع الواجهة الأمامية الجديدة
+        $allSlots[] = $timeString;
         
         $currentTime->addMinutes(10);
     }
 
-    return response()->json($allSlots);
+    // إرجاع البيانات بالشكل الذي تتوقعه الواجهة الأمامية لعرض المتاح والمحجوز باهتًا
+    return response()->json([
+        'all_slots' => $allSlots,
+        'booked_slots' => $bookedAppointments
+    ]);
 }
 
 public function store(Request $request)
