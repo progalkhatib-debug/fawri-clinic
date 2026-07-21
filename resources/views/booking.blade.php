@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- مكتبة الأعلام (تم تحديث الرابط هنا) -->
+    <!-- مكتبة الأعلام -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css"/>
     <title>حجز موعد - عيادة د. عمرو</title>
    <style>
@@ -27,14 +27,13 @@
     .iti__country-list {
         z-index: 9999 !important;
         position: absolute;
-        text-align: right; /* لضمان ظهور النصوص من اليمين */
-        direction: ltr !important; /* للحفاظ على ترتيب الأرقام والبحث */
-        width: 300px !important;    /* عرض ثابت لتظهر كاملة */
-        max-height: 250px !important; /* تحديد أقصى ارتفاع للقائمة */
-        overflow-y: auto !important; /* تفعيل التمرير داخل القائمة */
+        text-align: right;
+        direction: ltr !important;
+        width: 300px !important;    
+        max-height: 250px !important; 
+        overflow-y: auto !important; 
     }
 
-    /* تنسيق صندوق البحث ليظهر بوضوح داخل القائمة */
     .iti__search-input {
         display: block !important;
         width: 100% !important;
@@ -42,9 +41,14 @@
         border: 1px solid #ccc !important;
         border-radius: 4px !important;
         margin-bottom: 5px !important;
-        box-sizing: border-box !important; /* لضمان عدم خروج الصندوق عن العرض */
+        box-sizing: border-box !important; 
     }
 
+    /* تنسيق الخيارات المحجوزة داخل القائمة المنسدلة لتبدو باهتة */
+    option:disabled {
+        color: #9ca3af !important;
+        background-color: #f3f4f6 !important;
+    }
 </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -52,13 +56,10 @@
         <div class="w-full md:w-1/2 bg-blue-50 block">
             <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-full object-cover">
         </div>
-        <!-- تعديل الـ div الخاص بالنموذج ليصبح pt-0 بدلاً من pt-4 -->
 <div class="md:w-1/2 p-6 pt-0"> 
     
-    <!-- تقليل هامش العنوان ليصبح أصغر -->
     <h1 class="text-2xl font-bold mb-2 mt-0 text-center text-blue-800">حجز موعد ومتابعة</h1>
     
-    <!-- تقليل المسافات بين عناصر النموذج -->
     <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-2">
         @csrf
                 <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border">
@@ -93,18 +94,16 @@
             </form>
         </div>
     </div>
-<!-- استبدل الروابط القديمة بهذه الروابط -->
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
    <script>
-    // 1. إضافة كود تهيئة المكتبة ليعمل حقل الهاتف
     const phoneInputField = document.querySelector("#phone");
     const iti = window.intlTelInput(phoneInputField, {
         initialCountry: "eg",
         utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/utils.js",
     });
 
-    // دالة تحويل الوقت من تنسيق "م" إلى 24 ساعة (ليناسب السيرفر)
     function convertTo24Hour(timeString) {
         let [time, modifier] = timeString.split(' ');
         let [hours, minutes] = time.split(':');
@@ -116,7 +115,7 @@
         return hours + ':' + minutes;
     }
 
-async function updateSlots() {
+    async function updateSlots() {
         const clinicSelect = document.getElementById('clinic');
         const clinic = clinicSelect.value;
         const clinicName = clinicSelect.options[clinicSelect.selectedIndex].text;
@@ -130,74 +129,74 @@ async function updateSlots() {
 
         try {
             const response = await fetch("{{ route('get-booked-slots') }}?clinic=" + encodeURIComponent(clinic) + "&date=" + date);
-            const slots = await response.json();
-timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
+            const data = await response.json();
             
-            // التأكد من أننا نتعامل دائماً مع مصفوفة مهما كان شكل البيانات القادم من السيرفر
-            const slotsArray = Array.isArray(slots) ? slots : (slots.data || []);
+            timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-           // داخل الـ Script في ملف الـ Blade
-slotsArray.forEach(slot => {
-    const option = document.createElement('option');
-    option.value = slot; 
-    
-    let [hours, minutes] = slot.split(':');
-    let h = parseInt(hours);
-    
-    // منطق العرض:
-    let modifier = 'م'; // افتراضياً كل العيادات مسائية
-    let displayHours = h % 12;
-    if (displayHours === 0) displayHours = 12;
+            // استخراج الأوقات المتاحة بالكامل والأوقات المحجوزة من الـ Response
+            const allSlots = data.all_slots || [];   // جميع الأوقات الممكنة للعيادة
+            const bookedSlots = data.booked_slots || []; // الأوقات المحجوزة مسبقاً
 
-    // استثناء خاص لعيادة التمساحية (الساعة 00 أو 24 هي 12 ص)
-    if (clinicName.includes('التمساحية') && (h === 0 || h === 24)) {
-        modifier = 'ص'; 
-        displayHours = 12;
-    }
-    
-    option.textContent = `${displayHours}:${minutes} ${modifier}`;
-    timeSelect.appendChild(option);
-});
+            if (allSlots.length === 0) {
+                timeSelect.innerHTML = '<option value="">لا توجد مواعيد متاحة</option>';
+                return;
+            }
+
+            allSlots.forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot; // القيمة بصيغة 24 ساعة (مثال: 18:00)
+                
+                let [hours, minutes] = slot.split(':');
+                let h = parseInt(hours);
+                
+                let modifier = 'م';
+                let displayHours = h % 12;
+                if (displayHours === 0) displayHours = 12;
+
+                if (clinicName.includes('التمساحية') && (h === 0 || h === 24)) {
+                    modifier = 'ص'; 
+                    displayHours = 12;
+                }
+                
+                let formattedTimeText = `${displayHours}:${minutes} ${modifier}`;
+
+                // التحقق هل هذا الوقت محجوز مسبقاً؟
+                if (bookedSlots.includes(slot)) {
+                    option.disabled = true; // تعطيل الاختيار
+                    option.textContent = `${formattedTimeText} (محجوز)`;
+                } else {
+                    option.textContent = formattedTimeText;
+                }
+
+                timeSelect.appendChild(option);
+            });
+
         } catch (e) {
-            // هنا نرى الخطأ الحقيقي في الـ Console إذا لم يظهر شيء
             console.error('Error details:', e);
             timeSelect.innerHTML = '<option value="">خطأ في التحميل (راجع Console)</option>';
         }
     }
 
-    // تفعيل التحديث عند تغيير العيادة
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('clinic').addEventListener('change', updateSlots);
-        
-        // أضف هذا السطر الجديد لمراقبة تغيير التاريخ
         document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
         
-        // التعامل مع الإرسال
-     // التعامل مع الإرسال
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             document.getElementById('full_phone').value = iti.getNumber();
             
-            // --- تعديل لضمان إرسال الوقت بصيغة 24 ساعة للسيرفر ---
             const timeSelect = document.getElementById('appointment_time');
-            let selectedOptionText = timeSelect.options[timeSelect.selectedIndex].text; // مثل "10:10 م"
-            let timeValue = timeSelect.value; // القيمة المخزنة
+            let selectedOptionText = timeSelect.options[timeSelect.selectedIndex].text;
+            let timeValue = timeSelect.value; 
             
-            // إذا كان الوقت المرسل يحتوي على حروف عربية أو تم عرضه بشكل 12 ساعة، نحوله لـ 24 ساعة
             if (timeValue && (timeValue.includes('م') || timeValue.includes('ص') || selectedOptionText.includes('م') || selectedOptionText.includes('ص'))) {
-                // استخدام دالة التحويل لضمان إرسال تنسيق نظيف (مثل 22:10)
-                // إذا كانت timeValue مخزنة كـ 22:10 أصلاً، سنتركها كما هي
                 if (timeValue.includes(':') && !timeValue.includes('م') && !timeValue.includes('ص')) {
-                    // القيمة أصلية 24 ساعة، لا تقم بشيء
                 } else {
-                    // تحويل النص المعروض أو القيمة إلى 24 ساعة مرسلة
                     timeValue = convertTo24Hour(selectedOptionText);
                 }
             }
-            // ----------------------------------------------------
 
             const formData = new FormData(this);
-            // استبدال وقت الحجز بالقيمة المصححة (24 ساعة) لكي يفهمها السيرفر تماماً
             formData.set('appointment_time', timeValue);
 
             fetch(this.action, {

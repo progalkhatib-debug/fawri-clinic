@@ -85,6 +85,7 @@ public function getBookedSlots(Request $request)
 
     return response()->json($allSlots);
 }
+
 public function store(Request $request)
 {
     try {
@@ -98,12 +99,18 @@ public function store(Request $request)
             'appointment_type' => 'required'
         ]);
 
+        // إضافة شرط منع الحجز يوم الجمعة مع استخدام المسار الجذر لـ Carbon
+        $dayOfWeek = \Carbon\Carbon::parse($request->appointment_date)->dayOfWeek;
+        if ($dayOfWeek === \Carbon\Carbon::FRIDAY) {
+            return response()->json(['error' => 'عذراً، يوم الجمعة إجازة ولا يمكن الحجز فيه.'], 422);
+        }
+
         $clinicSchedules = [
             'القوصية' => ['start' => '16:00', 'end' => '19:00'],
             'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
             'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
         ];
-$time = $request->appointment_time;
+        $time = $request->appointment_time;
         $clinic = $request->clinic;
 
         // إضافة هذا الجزء لتحويل الوقت إلى صيغة 24 ساعة قبل الفحص
@@ -133,8 +140,8 @@ $time = $request->appointment_time;
 
         $fullDateTime = $request->appointment_date . ' ' . $time;
         $exists = Appointment::where('date_time', $fullDateTime)
-                             ->where('clinic', $clinic)
-                             ->exists();
+                           ->where('clinic', $clinic)
+                           ->exists();
 
         if ($exists) {
             return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
