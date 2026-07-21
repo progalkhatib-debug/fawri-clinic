@@ -100,23 +100,23 @@ public function getBookedSlots(Request $request)
 }
 
 public function store(Request $request)
-{
-    try {
-        // 1. التحقق من البيانات
-        $request->validate([
-            'patient_name'     => 'required',
-            'full_phone'       => 'required',
-            'appointment_date' => 'required|date|after_or_equal:today',
-            'appointment_time' => 'required',
-            'clinic'           => 'required',
-            'appointment_type' => 'nullable'
-        ]);
+    {
+        try {
+            // 1. التحقق من البيانات
+            $request->validate([
+                'patient_name'     => 'required',
+                'full_phone'       => 'required',
+                'appointment_date' => 'required|date|after_or_equal:today',
+                'appointment_time' => 'required',
+                'clinic'           => 'required',
+                'booking_type'     => 'nullable' // <-- هنا تم التعديل من appointment_type إلى booking_type
+            ]);
 
-        // إضافة شرط منع الحجز يوم الجمعة مع استخدام المسار الجذر لـ Carbon
-        $dayOfWeek = \Carbon\Carbon::parse($request->appointment_date)->dayOfWeek;
-        if ($dayOfWeek === \Carbon\Carbon::FRIDAY) {
-            return response()->json(['error' => 'عذراً، يوم الجمعة إجازة ولا يمكن الحجز فيه.'], 422);
-        }
+            // إضافة شرط منع الحجز يوم الجمعة مع استخدام المسار الجذر لـ Carbon
+            $dayOfWeek = \Carbon\Carbon::parse($request->appointment_date)->dayOfWeek;
+            if ($dayOfWeek === \Carbon\Carbon::FRIDAY) {
+                return response()->json(['error' => 'عذراً، يوم الجمعة إجازة ولا يمكن الحجز فيه.'], 422);
+            }
 
         $clinicSchedules = [
             'القوصية' => ['start' => '16:00', 'end' => '19:00'],
