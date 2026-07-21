@@ -42,12 +42,14 @@
 <input type="file" id="fileInput" class="hidden" onchange="uploadImage(this)">
 
     <!-- هذه الجهة (التي ستصبح يسار في العربي ويمين في الإنجليزي) -->
-   <form action="{{ route('logout') }}" method="POST" class="inline">
+   <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
     @csrf
-    <button type="submit" class="text-red-600 font-bold bg-transparent border-none cursor-pointer">
-        {{ app()->getLocale() == 'en' ? 'Logout' : 'تسجيل خروج' }}
-    </button>
 </form>
+
+<a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-red-600 font-bold cursor-pointer">
+    {{ app()->getLocale() == 'en' ? 'Logout' : 'تسجيل خروج' }}
+</a>
+
 </div>
 
     <div class="max-w-4xl mx-auto">
