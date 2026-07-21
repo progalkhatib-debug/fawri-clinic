@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->string('booking_type')->default('new'); // أضفنا حقل نوع الحجز بقيمة افتراضية جديد
+            $table->text('diagnosis')->nullable();
+            $table->text('treatment')->nullable();
+            if (!Schema::hasColumn('appointments', 'status')) {
+                $table->string('status')->default('pending');
+            }
         });
     }
 
@@ -22,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->dropColumn('booking_type'); // لإلغاء التعديل إذا احتجت للتراجع
+            $table->dropColumn(['diagnosis', 'treatment']);
         });
     }
 };

@@ -63,15 +63,15 @@
     <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-2">
         @csrf
                 <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="appointment_type" value="new" checked class="form-radio h-5 w-5 text-blue-600">
-                        <span class="mr-2 text-gray-700">حجز جديد</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="appointment_type" value="followup" class="form-radio h-5 w-5 text-blue-600">
-                        <span class="mr-2 text-gray-700">متابعة</span>
-                    </label>
-                </div>
+    <label class="flex items-center cursor-pointer">
+        <input type="radio" name="booking_type" value="new" {{ old('booking_type', 'new') == 'new' ? 'checked' : '' }} class="form-radio h-5 w-5 text-blue-600">
+        <span class="mr-2 text-gray-700">حجز جديد</span>
+    </label>
+    <label class="flex items-center cursor-pointer">
+        <input type="radio" name="booking_type" value="follow-up" {{ old('booking_type') == 'follow-up' ? 'checked' : '' }} class="form-radio h-5 w-5 text-blue-600">
+        <span class="mr-2 text-gray-700">متابعة</span>
+    </label>
+</div>
                 <input type="text" name="patient_name" id="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
                 
                 <!-- حقل الهاتف مع الأعلام -->
