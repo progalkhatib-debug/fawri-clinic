@@ -157,6 +157,13 @@
             });
         }
     }
+    setInterval(function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput && searchInput === document.activeElement) {
+            return; 
+        }
+        location.reload();
+    }, 3000); // 3000 تعني ثانية واحدة
 </script>
 </body>
 </html>
