@@ -54,3 +54,8 @@ Route::get('/add-test-appointment', function() {
     ]);
     return "تم إضافة الموعد التجريبي بنجاح في قاعدة البيانات! اذهب الآن لصفحة الحجز وجرب.";
 });
+
+Route::get('/run-migrations-now', function() {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return "تم تحديث وتشغيل المايجريشن بنجاح في قاعدة البيانات!";
+});
