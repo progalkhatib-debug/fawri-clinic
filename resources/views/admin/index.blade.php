@@ -79,67 +79,81 @@
         </form>
         
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="w-full text-right border-collapse">
-                <thead class="bg-blue-600 text-white">
-                    <tr>
-                        <th class="p-4">{{ app()->getLocale() == 'en' ? 'Name' : 'الاسم' }}</th>
-                        <th class="p-4">{{ app()->getLocale() == 'en' ? 'Phone' : 'الهاتف' }}</th>
-                        <th class="p-4">{{ app()->getLocale() == 'en' ? 'Clinic' : 'العيادة' }}</th>
-                        <th class="p-4">{{ app()->getLocale() == 'en' ? 'Date & Time' : 'التاريخ والوقت' }}</th>
-                        <th class="p-4">{{ app()->getLocale() == 'en' ? 'Status' : 'الحالة' }}</th>
-                        <th class="p-4">{{ app()->getLocale() == 'en' ? 'Actions' : 'إجراءات' }}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-    @foreach($appointments as $appointment)
-    <tr class="{{ $appointment->status == 'completed' ? 'bg-green-50' : 'bg-yellow-50' }}">
-        <td class="p-4 font-medium text-gray-900">{{ $appointment->patient_name }}</td>
-        <td class="p-4">{{ $appointment->phone }}</td>
-        
-        <!-- العيادة -->
-        <td class="p-4">
-            @if(app()->getLocale() == 'en')
-                {{ [
-                    'التمساحية' => 'El-Temsahia',
-                    'القوصية' => 'El-Qusiya',
-                    'المنشأة الكبرى' => 'El-Manshaa'
-                ][$appointment->clinic] ?? $appointment->clinic }}
-            @else
-                {{ $appointment->clinic }}
-            @endif
-        </td>
+    <table class="w-full text-right border-collapse">
+        <thead class="bg-blue-600 text-white">
+            <tr>
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Name' : 'الاسم' }}</th>
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Phone' : 'الهاتف' }}</th>
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Clinic' : 'العيادة' }}</th>
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Date & Time' : 'التاريخ والوقت' }}</th>
+                <!-- العمود الجديد بين التاريخ والحالة -->
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Type' : 'نوع الحجز' }}</th>
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Status' : 'الحالة' }}</th>
+                <th class="p-4">{{ app()->getLocale() == 'en' ? 'Actions' : 'إجراءات' }}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            @foreach($appointments as $appointment)
+            <tr class="{{ $appointment->status == 'completed' ? 'bg-green-50' : 'bg-yellow-50' }}">
+                <td class="p-4 font-medium text-gray-900">{{ $appointment->patient_name }}</td>
+                <td class="p-4">{{ $appointment->phone }}</td>
+                
+                <!-- العيادة -->
+                <td class="p-4">
+                    @if(app()->getLocale() == 'en')
+                        {{ [
+                            'التمساحية' => 'El-Temsahia',
+                            'القوصية' => 'El-Qusiya',
+                            'المنشأة الكبرى' => 'El-Manshaa'
+                        ][$appointment->clinic] ?? $appointment->clinic }}
+                    @else
+                        {{ $appointment->clinic }}
+                    @endif
+                </td>
 
-        <td class="p-4" dir="ltr">{{ $appointment->date_time }}</td>
-        
-        <!-- الحالة -->
-        <td class="p-4">
-            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
-                {{ $appointment->status == 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800' }}">
-                {{ $appointment->status == 'completed' 
-                    ? (app()->getLocale() == 'en' ? 'Completed' : 'مكتمل') 
-                    : (app()->getLocale() == 'en' ? 'Pending' : 'قيد الانتظار') }}
-            </span>
-        </td>
+                <td class="p-4" dir="ltr">{{ $appointment->date_time }}</td>
+                
+                <!-- خانة نوع الحجز (جديد أو متابعة) -->
+                <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold 
+                        {{ ($appointment->booking_type ?? 'new') == 'new' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
+                        {{ 
+                            ($appointment->booking_type ?? 'new') == 'new' 
+                                ? (app()->getLocale() == 'en' ? 'New Booking' : 'حجز جديد') 
+                                : (app()->getLocale() == 'en' ? 'Follow-up' : 'متابعة') 
+                        }}
+                    </span>
+                </td>
 
-        <!-- الإجراءات -->
-        <td class="p-4 flex gap-2">
-            <a href="{{ route('appointments.edit', $appointment->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
-                {{ app()->getLocale() == 'en' ? 'Edit' : 'سجل' }}
-            </a>
-            <a href="{{ route('appointments.print', $appointment->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" target="_blank">
-                {{ app()->getLocale() == 'en' ? 'Print' : 'طباعة' }}
-            </a>
-            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد؟')">
-                @csrf @method('DELETE')
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
-                    {{ app()->getLocale() == 'en' ? 'Delete' : 'حذف' }}
-                </button>
-            </form>
-        </td>
-    </tr>
-    @endforeach
-</tbody>
-</table>
+                <!-- الحالة -->
+                <td class="p-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
+                        {{ $appointment->status == 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800' }}">
+                        {{ $appointment->status == 'completed' 
+                            ? (app()->getLocale() == 'en' ? 'Completed' : 'مكتمل') 
+                            : (app()->getLocale() == 'en' ? 'Pending' : 'قيد الانتظار') }}
+                    </span>
+                </td>
+
+                <!-- الإجراءات -->
+                <td class="p-4 flex gap-2">
+                    <a href="{{ route('appointments.edit', $appointment->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
+                        {{ app()->getLocale() == 'en' ? 'Edit' : 'سجل' }}
+                    </a>
+                    <a href="{{ route('appointments.print', $appointment->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" target="_blank">
+                        {{ app()->getLocale() == 'en' ? 'Print' : 'طباعة' }}
+                    </a>
+                    <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد؟')">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
+                            {{ app()->getLocale() == 'en' ? 'Delete' : 'حذف' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 </div>
 

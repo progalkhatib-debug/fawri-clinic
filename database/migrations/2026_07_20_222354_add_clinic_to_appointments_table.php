@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->string('clinic')->nullable(); // أضفه هنا
+            $table->string('booking_type')->default('new'); // أضفنا حقل نوع الحجز بقيمة افتراضية جديد
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->dropColumn('clinic'); // لإلغاء التعديل إذا احتجت للتراجع
+            $table->dropColumn('booking_type'); // لإلغاء التعديل إذا احتجت للتراجع
         });
     }
 };
