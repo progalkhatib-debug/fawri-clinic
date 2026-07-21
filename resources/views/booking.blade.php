@@ -196,8 +196,14 @@
                 }
             }
 
-            const formData = new FormData(this);
+           const formData = new FormData(this);
             formData.set('appointment_time', timeValue);
+            
+            // التأكد من إرسال قيمة نوع الحجز المختار بدقة
+            const selectedBookingType = document.querySelector('input[name="booking_type"]:checked');
+            if (selectedBookingType) {
+                formData.set('booking_type', selectedBookingType.value);
+            }
 
             fetch(this.action, {
                 method: 'POST',
