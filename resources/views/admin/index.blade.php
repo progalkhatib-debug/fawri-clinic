@@ -122,11 +122,11 @@
                         <!-- خانة نوع الحجز (جديد أو متابعة) -->
                         <td class="p-4">
     <span class="px-3 py-1 rounded-full text-xs font-bold inline-block 
-        {{ ($appointment->booking_type ?? 'new') == 'new' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
+        {{ (trim($appointment->booking_type) == 'follow-up') ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
         {{ 
-            ($appointment->booking_type ?? 'new') == 'new' 
-                ? (app()->getLocale() == 'en' ? 'New Booking' : 'حجز جديد') 
-                : (app()->getLocale() == 'en' ? 'Follow-up' : 'متابعة') 
+            (trim($appointment->booking_type) == 'follow-up') 
+                ? (app()->getLocale() == 'en' ? 'Follow-up' : 'متابعة') 
+                : (app()->getLocale() == 'en' ? 'New Booking' : 'حجز جديد') 
         }}
     </span>
 </td>

@@ -161,9 +161,8 @@ public function store(Request $request)
         }
 
         // تحديد قيمة آمنة لنوع الحجز حتى لو لم يتم إرساله من النموذج
-        $appointmentType = $request->input('appointment_type') ?? $request->input('booking_type', 'new');
+       $appointmentType = $request->input('booking_type', 'new');
 
-        // 2. الحفظ في قاعدة البيانات (تم ضبط حقل booking_type ليتوافق مع الجدول وعرض لوحة التحكم)
         Appointment::create([
             'patient_name' => $request->patient_name,
             'phone'        => $request->full_phone,
