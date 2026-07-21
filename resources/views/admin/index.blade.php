@@ -42,6 +42,12 @@
 <input type="file" id="fileInput" class="hidden" onchange="uploadImage(this)">
 
     <!-- هذه الجهة (التي ستصبح يسار في العربي ويمين في الإنجليزي) -->
+<div class="flex items-center gap-4">
+    <!-- زر الإعدادات الجديد -->
+    <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:text-blue-800 font-bold">
+        {{ app()->getLocale() == 'en' ? 'Settings' : 'الإعدادات' }}
+    </a>
+
    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
     @csrf
 </form>
@@ -49,6 +55,7 @@
 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-red-600 font-bold cursor-pointer">
     {{ app()->getLocale() == 'en' ? 'Logout' : 'تسجيل خروج' }}
 </a>
+</div>
 
 </div>
 
