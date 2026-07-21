@@ -109,7 +109,7 @@ public function store(Request $request)
             'appointment_date' => 'required|date|after_or_equal:today',
             'appointment_time' => 'required',
             'clinic'           => 'required',
-            'appointment_type' => 'required'
+            'appointment_type' => 'nullable'
         ]);
 
         // إضافة شرط منع الحجز يوم الجمعة مع استخدام المسار الجذر لـ Carbon
@@ -153,20 +153,23 @@ public function store(Request $request)
 
         $fullDateTime = $request->appointment_date . ' ' . $time;
         $exists = Appointment::where('date_time', $fullDateTime)
-                           ->where('clinic', $clinic)
-                           ->exists();
+                             ->where('clinic', $clinic)
+                             ->exists();
 
         if ($exists) {
             return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
         }
 
-        // 2. الحفظ في قاعدة البيانات
+        // تحديد قيمة آمنة لنوع الحجز حتى لو لم يتم إرساله من النموذج
+        $appointmentType = $request->input('appointment_type') ?? $request->input('booking_type', 'new');
+
+        // 2. الحفظ في قاعدة البيانات (تم ضبط حقل booking_type ليتوافق مع الجدول وعرض لوحة التحكم)
         Appointment::create([
             'patient_name' => $request->patient_name,
             'phone'        => $request->full_phone,
             'date_time'    => $fullDateTime,
             'clinic'       => $clinic,
-            'type'         => $request->appointment_type 
+            'booking_type' => $appointmentType 
         ]);
 
         return response()->json(['success' => true]);
@@ -174,6 +177,7 @@ public function store(Request $request)
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 422);
     }
+
 }
     // حذف الحجز
     public function destroy(int $id)
