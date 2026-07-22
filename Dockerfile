@@ -1,8 +1,8 @@
 FROM php:8.3-apache
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev git unzip nodejs \
-    && docker-php-ext-install pdo_mysql gd zip \
+    && apt-get update && apt-get install -y libpng-dev libjpeg-dev libzip-dev libpq-dev git unzip nodejs \
+    && docker-php-ext-install pdo_mysql pdo_pgsql gd zip \
     && a2enmod rewrite
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -25,5 +25,4 @@ RUN mkdir -p /var/www/html/database && \
 
 RUN php artisan migrate --force || true
 
-# استبدل السطر الأخير (CMD) بهذا السطر:
 CMD php artisan migrate --force && php artisan db:seed --force && apache2-foreground
