@@ -13,6 +13,7 @@ class Appointment extends Model
         'clinic',
         'diagnosis',
         'treatment',
-        'status', // <--- أضف هذا السطر هنا
+        'status',
+        'booking_type', // <--- أضف هذا السطر هنا
     ];
 }
