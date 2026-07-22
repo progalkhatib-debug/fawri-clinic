@@ -77,7 +77,7 @@
                 </select>
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">تأكيد الحجز</button>
                 <!-- زر الاتصال المباشر للطوارئ -->
-                <a href="tel:01234567890" class="block w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition text-center flex items-center justify-center gap-2 mt-2">
+                <a href="tel:01016693156" class="block w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition text-center flex items-center justify-center gap-2 mt-2">
                     <i class="fas fa-phone-alt"></i> اتصال طوارئ مباشر بالدكتور
                 </a>
             </form>
