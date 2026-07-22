@@ -20,10 +20,8 @@
     }
     .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
     
-    /* تنسيقات مكتبة الهاتف الضرورية */
     .iti { width: 100%; display: block; } 
     
-    /* حل مشكلة ظهور القائمة خلف العناصر */
     .iti__country-list {
         z-index: 9999 !important;
         position: absolute;
@@ -44,7 +42,6 @@
         box-sizing: border-box !important; 
     }
 
-    /* تنسيق الخيارات المحجوزة داخل القائمة المنسدلة لتبدو باهتة */
     option:disabled {
         color: #9ca3af !important;
         background-color: #f3f4f6 !important;
@@ -74,23 +71,21 @@
 </div>
                 <input type="text" name="patient_name" id="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
                 
-                <!-- حقل الهاتف مع الأعلام -->
                 <div class="w-full">
                     <input type="tel" id="phone" required class="w-full p-3 border rounded-lg text-right">
                     <input type="hidden" name="full_phone" id="full_phone">
                 </div>
 
-                <!-- تم إزالة عيادة التمساحية وتحويل الأوقات الظاهرة إلى الأرقام العربية -->
                 <select name="clinic" id="clinic" required class="w-full p-3 border rounded-lg">
                     <option value="">اختر العيادة</option>
                     <option value="القوصية">القوصية (٤:٠٠ م - ٧:٠٠ م)</option>
                     <option value="المنشأة الكبرى">المنشأة الكبرى (٧:٣٠ م - ٩:٣٠ م)</option>
                 </select>
 
-                <!-- حقل التاريخ مع عنصر عرض التاريخ العربي المخصص -->
+                <!-- حقل التاريخ المخفي للإرسال للسيرفر وحقل النص المرئي باللغة العربية -->
                 <div class="relative">
-                    <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required class="w-full p-3 border rounded-lg">
-                    <div id="arabicDateDisplay" class="absolute top-0 right-0 w-full h-full p-3 bg-white border rounded-lg pointer-events-none flex items-center text-gray-700" style="display: none;"></div>
+                    <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
+                    <input type="text" id="appointment_date_view" placeholder="اختر التاريخ (السنة-الشهر-اليوم)" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
                 </div>
 
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
@@ -103,8 +98,12 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
+<!-- إضافة مكتبة Flatpickr للتقويم لضمان مظهر عربي متكامل واحترافي -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
+
    <script>
-    // دالة عامة لتحويل الأرقام الإنجليزية إلى عربية
     function toArabicNumbers(str) {
         if (!str) return '';
         const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -133,8 +132,7 @@
     async function updateSlots() {
         const clinicSelect = document.getElementById('clinic');
         const clinic = clinicSelect.value;
-        const clinicName = clinicSelect.options[clinicSelect.selectedIndex].text;
-        const date = document.querySelector('input[name="appointment_date"]').value;
+        const date = document.getElementById('appointment_date_hidden').value;
         const timeSelect = document.getElementById('appointment_time');
 
         if (!clinic || !date) return;
@@ -186,26 +184,24 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const dateInput = document.querySelector('input[name="appointment_date"]');
-        const arabicDateDisplay = document.getElementById('arabicDateDisplay');
-
-        // تحويل أرقام التاريخ الظاهرة للمستخدم إلى العربية عند اختياره
-        dateInput.addEventListener('input', function() {
-            if(this.value) {
-                arabicDateDisplay.textContent = toArabicNumbers(this.value);
-                arabicDateDisplay.style.display = 'flex';
-            } else {
-                arabicDateDisplay.style.display = 'none';
+        // تفعيل مكتبة التقويم باللغة العربية بالكامل
+        flatpickr("#appointment_date_view", {
+            locale: "ar",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                // حفظ التاريخ بالصيغة الإنجليزية في الحقل المخفي (لإرساله للسيرفر وقاعدة البيانات)
+                document.getElementById('appointment_date_hidden').value = dateStr;
+                
+                // عرض التاريخ بالأرقام العربية للمستخدم في الحقل المرئي
+                document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
+                
+                // تحديث المواعيد المتاحة
+                updateSlots();
             }
         });
 
-        // إخفاء طبقة النص العربي عند النقر لتغيير التاريخ
-        arabicDateDisplay.addEventListener('click', function() {
-            dateInput.showPicker ? dateInput.showPicker() : dateInput.focus();
-        });
-
         document.getElementById('clinic').addEventListener('change', updateSlots);
-        dateInput.addEventListener('change', updateSlots);
         
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -223,6 +219,9 @@
             }
             const formData = new FormData(this);
             formData.set('appointment_time', timeValue);
+            
+            // التأكد من إرسال التاريخ المخفي بالصيغة الصحيحة للسيرفر
+            formData.set('appointment_date', document.getElementById('appointment_date_hidden').value);
             
             const selectedBookingType = document.querySelector('input[name="booking_type"]:checked');
             if (selectedBookingType) {
