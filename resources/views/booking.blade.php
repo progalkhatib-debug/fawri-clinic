@@ -7,6 +7,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>حجز موعد - عيادة د. عمرو</title>
+    
+    <!-- روابط المعاينة الخفية للسوشيال ميديا والفيسبوك -->
+    <meta property="og:image" content="{{ asset('images/barcode.png') }}">
+    <meta property="og:url" content="https://fawri-clinic.onrender.com/booking">
+    <meta property="og:title" content="حجز موعد - عيادة د. عمرو">
+    <meta property="og:description" content="احجز موعدك بكل سهولة في عيادة د. عمرو خلاف">
+
    <style>
     body { 
         background: linear-gradient(135deg, #005c97, #363795); 
