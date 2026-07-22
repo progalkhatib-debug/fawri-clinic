@@ -48,7 +48,9 @@
                 
                 <!-- حقل الهاتف: يمنع الحروف ويشترط 11 رقماً -->
                 <div class="relative flex items-center">
-                    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف (11 رقم)" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="w-full p-3 pl-12 border rounded-lg text-right">
+                    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف " maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="w-full p-3 pl-12 border rounded-lg text-right">
+
+  
                     <div class="absolute left-3 flex items-center pointer-events-none text-xl" title="مصر">
                         🇪🇬
                     </div>
