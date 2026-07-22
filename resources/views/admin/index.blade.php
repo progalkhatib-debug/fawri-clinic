@@ -117,7 +117,9 @@
                             @endif
                         </td>
 
-                        <td class="p-4" dir="ltr">{{ $appointment->date_time }}</td>
+                        <td class="p-4">
+    {{ \Carbon\Carbon::parse($appointment->date_time)->translatedFormat('l j F Y - h:i a') }}
+</td>
                         
                         <!-- خانة نوع الحجز (جديد أو متابعة) -->
                         <td class="p-4">
