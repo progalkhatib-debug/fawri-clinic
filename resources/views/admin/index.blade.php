@@ -144,20 +144,20 @@
                         </td>
 
                         <!-- الإجراءات -->
-                        <td class="p-4 flex gap-2 items-center">
-                            <a href="{{ route('appointments.edit', $appointment->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
-                                {{ app()->getLocale() == 'en' ? 'Edit' : 'سجل' }}
-                            </a>
-                            <a href="{{ route('appointments.print', $appointment->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" target="_blank">
-                                {{ app()->getLocale() == 'en' ? 'Print' : 'طباعة' }}
-                            </a>
-                            <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد؟')" class="inline-block m-0">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
-                                    {{ app()->getLocale() == 'en' ? 'Delete' : 'حذف' }}
-                                </button>
-                            </form>
-                        </td>
+                       <td class="p-4 flex gap-2 items-center">
+    <a href="{{ route('appointments.edit', $appointment->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition">
+        {{ app()->getLocale() == 'en' ? 'Edit' : 'سجل' }}
+    </a>
+    <a href="{{ route('appointments.print', $appointment->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition" target="_blank">
+        {{ app()->getLocale() == 'en' ? 'Print' : 'طباعة' }}
+    </a>
+    <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد؟')" class="inline-block m-0">
+        @csrf @method('DELETE')
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
+            {{ app()->getLocale() == 'en' ? 'Delete' : 'حذف' }}
+        </button>
+    </form>
+</td>
                     </tr>
                     @endforeach
                 </tbody>
