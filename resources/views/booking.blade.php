@@ -158,19 +158,28 @@
                     displayHours = 12;
                 }
                 
-                let formattedTimeText = `${displayHours}:${minutes} ${modifier}`;
+              // دالة تحويل الأرقام إلى عربية
+                function toArabicNumbers(str) {
+                    if (!str) return '';
+                    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+                    return str.toString().replace(/[0-9]/g, function(w) {
+                        return arabicNumbers[w];
+                    });
+                }
+
+                let rawTimeText = `${displayHours}:${minutes} ${modifier}`;
+                let formattedTimeText = toArabicNumbers(rawTimeText);
 
                 // التحقق هل هذا الوقت محجوز مسبقاً؟
                 if (bookedSlots.includes(slot)) {
                     option.disabled = true; // تعطيل الاختيار
-                    option.textContent = `${formattedTimeText} (محجوز)`;
+                    option.textContent = `${formattedTimeText} (${toArabicNumbers('محجوز')})`;
                 } else {
                     option.textContent = formattedTimeText;
                 }
 
                 timeSelect.appendChild(option);
             });
-
         } catch (e) {
             console.error('Error details:', e);
             timeSelect.innerHTML = '<option value="">خطأ في التحميل (راجع Console)</option>';
@@ -195,14 +204,14 @@
                     timeValue = convertTo24Hour(selectedOptionText);
                 }
             }
-
-           const formData = new FormData(this);
+const formData = new FormData(this);
             formData.set('appointment_time', timeValue);
             
             // التأكد من إرسال قيمة نوع الحجز المختار بدقة
             const selectedBookingType = document.querySelector('input[name="booking_type"]:checked');
             if (selectedBookingType) {
                 formData.set('booking_type', selectedBookingType.value);
+                console.log('نوع الحجز المرسل:', selectedBookingType.value); // للتأكد من القيمة في المتصفح
             }
 
             fetch(this.action, {
