@@ -25,14 +25,14 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-w-5xl w-full">
-        <div class="w-full md:w-1/2 bg-blue-50 block">
-            <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-full object-cover">
-        </div>
-<div class="md:w-1/2 p-6 pt-0"> 
+        <div class="w-full md:w-1/2 bg-blue-50 flex items-center justify-center p-2 md:p-0">
+    <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-48 md:h-full object-cover">
+</div>
+<div class="md:w-1/2 p-3 md:p-6"> 
     
-    <h1 class="text-2xl font-bold mb-2 mt-0 text-center text-blue-800">حجز موعد ومتابعة</h1>
+    <h1 class="text-xl md:text-2xl font-bold mb-1 mt-0 text-center text-blue-800">حجز موعد ومتابعة</h1>
     
-    <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-2">
+    <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" class="space-y-1.5">
         @csrf
                 <div class="flex gap-4 p-2 bg-gray-50 rounded-lg border">
     <label class="flex items-center cursor-pointer">
@@ -76,6 +76,10 @@
                     <option value="">تحديد الوقت</option>
                 </select>
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">تأكيد الحجز</button>
+                <!-- زر الاتصال المباشر للطوارئ -->
+                <a href="tel:01234567890" class="block w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition text-center flex items-center justify-center gap-2 mt-2">
+                    <i class="fas fa-phone-alt"></i> اتصال طوارئ مباشر بالدكتور
+                </a>
             </form>
         </div>
     </div>
