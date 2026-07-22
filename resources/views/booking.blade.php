@@ -63,11 +63,14 @@
                 </select>
 
                 <div class="relative">
-                    <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
-                    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
-
-  
-                </div>
+    <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
+    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ" readonly required class="w-full p-3 pl-10 border rounded-lg bg-white cursor-pointer text-right">
+    <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </div>
+</div>
 
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
                     <option value="">تحديد الوقت</option>
