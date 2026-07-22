@@ -80,13 +80,19 @@
                     <input type="hidden" name="full_phone" id="full_phone">
                 </div>
 
+                <!-- تم إزالة عيادة التمساحية وتحويل الأوقات الظاهرة إلى الأرقام العربية -->
                 <select name="clinic" id="clinic" required class="w-full p-3 border rounded-lg">
                     <option value="">اختر العيادة</option>
-                    <option value="القوصية">القوصية (4:00 م - 7:00 م)</option>
-                    <option value="المنشأة الكبرى">المنشأة الكبرى (7:30 م - 9:30 م)</option>
-                    <option value="التمساحية">التمساحية (10:00 م - 12:00 ص)</option>
+                    <option value="القوصية">القوصية (٤:٠٠ م - ٧:٠٠ م)</option>
+                    <option value="المنشأة الكبرى">المنشأة الكبرى (٧:٣٠ م - ٩:٣٠ م)</option>
                 </select>
-                <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required class="w-full p-3 border rounded-lg">
+
+                <!-- حقل التاريخ مع عنصر عرض التاريخ العربي المخصص -->
+                <div class="relative">
+                    <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required class="w-full p-3 border rounded-lg">
+                    <div id="arabicDateDisplay" class="absolute top-0 right-0 w-full h-full p-3 bg-white border rounded-lg pointer-events-none flex items-center text-gray-700" style="display: none;"></div>
+                </div>
+
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
                     <option value="">تحديد الوقت</option>
                 </select>
@@ -98,6 +104,15 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
    <script>
+    // دالة عامة لتحويل الأرقام الإنجليزية إلى عربية
+    function toArabicNumbers(str) {
+        if (!str) return '';
+        const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return str.toString().replace(/[0-9]/g, function(w) {
+            return arabicNumbers[w];
+        });
+    }
+
     const phoneInputField = document.querySelector("#phone");
     const iti = window.intlTelInput(phoneInputField, {
         initialCountry: "eg",
@@ -133,9 +148,8 @@
             
             timeSelect.innerHTML = '<option value="">تحديد الوقت</option>';
             
-            // استخراج الأوقات المتاحة بالكامل والأوقات المحجوزة من الـ Response
-            const allSlots = data.all_slots || [];   // جميع الأوقات الممكنة للعيادة
-            const bookedSlots = data.booked_slots || []; // الأوقات المحجوزة مسبقاً
+            const allSlots = data.all_slots || [];   
+            const bookedSlots = data.booked_slots || []; 
 
             if (allSlots.length === 0) {
                 timeSelect.innerHTML = '<option value="">لا توجد مواعيد متاحة</option>';
@@ -144,7 +158,7 @@
 
             allSlots.forEach(slot => {
                 const option = document.createElement('option');
-                option.value = slot; // القيمة بصيغة 24 ساعة (مثال: 18:00)
+                option.value = slot; 
                 
                 let [hours, minutes] = slot.split(':');
                 let h = parseInt(hours);
@@ -152,27 +166,12 @@
                 let modifier = 'م';
                 let displayHours = h % 12;
                 if (displayHours === 0) displayHours = 12;
-
-                if (clinicName.includes('التمساحية') && (h === 0 || h === 24)) {
-                    modifier = 'ص'; 
-                    displayHours = 12;
-                }
                 
-              // دالة تحويل الأرقام إلى عربية
-                function toArabicNumbers(str) {
-                    if (!str) return '';
-                    const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-                    return str.toString().replace(/[0-9]/g, function(w) {
-                        return arabicNumbers[w];
-                    });
-                }
-
                 let rawTimeText = `${displayHours}:${minutes} ${modifier}`;
                 let formattedTimeText = toArabicNumbers(rawTimeText);
 
-                // التحقق هل هذا الوقت محجوز مسبقاً؟
                 if (bookedSlots.includes(slot)) {
-                    option.disabled = true; // تعطيل الاختيار
+                    option.disabled = true; 
                     option.textContent = `${formattedTimeText} (${toArabicNumbers('محجوز')})`;
                 } else {
                     option.textContent = formattedTimeText;
@@ -187,8 +186,26 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[name="appointment_date"]');
+        const arabicDateDisplay = document.getElementById('arabicDateDisplay');
+
+        // تحويل أرقام التاريخ الظاهرة للمستخدم إلى العربية عند اختياره
+        dateInput.addEventListener('input', function() {
+            if(this.value) {
+                arabicDateDisplay.textContent = toArabicNumbers(this.value);
+                arabicDateDisplay.style.display = 'flex';
+            } else {
+                arabicDateDisplay.style.display = 'none';
+            }
+        });
+
+        // إخفاء طبقة النص العربي عند النقر لتغيير التاريخ
+        arabicDateDisplay.addEventListener('click', function() {
+            dateInput.showPicker ? dateInput.showPicker() : dateInput.focus();
+        });
+
         document.getElementById('clinic').addEventListener('change', updateSlots);
-        document.querySelector('input[name="appointment_date"]').addEventListener('change', updateSlots);
+        dateInput.addEventListener('change', updateSlots);
         
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -204,14 +221,12 @@
                     timeValue = convertTo24Hour(selectedOptionText);
                 }
             }
-const formData = new FormData(this);
+            const formData = new FormData(this);
             formData.set('appointment_time', timeValue);
             
-            // التأكد من إرسال قيمة نوع الحجز المختار بدقة
             const selectedBookingType = document.querySelector('input[name="booking_type"]:checked');
             if (selectedBookingType) {
                 formData.set('booking_type', selectedBookingType.value);
-                console.log('نوع الحجز المرسل:', selectedBookingType.value); // للتأكد من القيمة في المتصفح
             }
 
             fetch(this.action, {

@@ -9,13 +9,11 @@ class AppointmentController extends Controller
 {
     public function index(Request $request)
     {
-        // إضافة كود اللغة في البداية
         if ($request->has('lang')) {
             session(['lang' => $request->lang]);
         }
         app()->setLocale(session('lang', 'ar'));
 
-        // كود البحث وجلب البيانات كما هو
         $query = Appointment::query();
 
         if ($request->has('search') && $request->search != '') {
@@ -25,16 +23,14 @@ class AppointmentController extends Controller
                   ->orWhere('date_time', 'like', '%' . $searchTerm . '%');
         }
 
-        // ترتيب النتائج ليظهر الأحدث أولاً
         $appointments = $query->orderBy('date_time', 'desc')->get();
         
         return view('admin.index', compact('appointments'));
     }
 
-    // عرض صفحة نموذج الحجز للمريض
     public function create()
     {
-        return view('booking'); // تأكد أن ملف صفحة الحجز لديك اسمه booking.blade.php وموجود في مجلد resources/views
+        return view('booking');
     }
     
     public function getBookedSlots(Request $request)
@@ -42,7 +38,6 @@ class AppointmentController extends Controller
         $clinic = $request->clinic;
         $date = $request->date;
 
-        // إضافة شرط منع يوم الجمعة وإرجاع مصفوفات فارغة
         $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
         if ($dayOfWeek === \Carbon\Carbon::FRIDAY) {
             return response()->json([
@@ -51,11 +46,10 @@ class AppointmentController extends Controller
             ]);
         }
         
-        // تعريف جداول العيادات لتحديد بداية ونهاية كل عيادة بدقة
+        // تم حذف عيادة التتمساحية وبقي القوصية والمنشأة الكبرى فقط
         $clinicSchedules = [
             'القوصية' => ['start' => '16:00', 'end' => '19:00'],
-            'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
-            'التمساحية' => ['start' => '22:00', 'end' => '00:00'] 
+            'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30']
         ];
 
         if (!isset($clinicSchedules[$clinic])) {
@@ -65,12 +59,6 @@ class AppointmentController extends Controller
         $startTime = \Carbon\Carbon::createFromFormat('H:i', $clinicSchedules[$clinic]['start']);
         $endTime = \Carbon\Carbon::createFromFormat('H:i', $clinicSchedules[$clinic]['end']);
         
-        // إذا كانت نهاية العيادة منتصف الليل (00:00)، نضيف يوم لنطاق الحساب البرمجي
-        if ($clinicSchedules[$clinic]['end'] === '00:00') {
-            $endTime->addDay();
-        }
-        
-        // جلب الأوقات المحجوزة فعلياً لهذا اليوم والعيادة
         $bookedAppointments = Appointment::where('clinic', $clinic)
                                         ->whereDate('date_time', $request->date)
                                         ->get()
@@ -78,21 +66,15 @@ class AppointmentController extends Controller
                                             return \Carbon\Carbon::parse($appointment->date_time)->format('H:i');
                                         })->toArray();
 
-        // توليد الأوقات (كل 10 دقائق)
         $allSlots = [];
         $currentTime = $startTime->copy();
         
         while ($currentTime->lt($endTime)) {
-            // إذا تعدينا منتصف الليل، نعيد تنسيق الساعات بشكل صحيح (مثل 00:00 بدلاً من 24:00)
             $timeString = $currentTime->format('H:i');
-            
-            // جمع كل الأوقات (المتاحة والمحجوزة) ليتوافق مع الواجهة الأمامية الجديدة
             $allSlots[] = $timeString;
-            
             $currentTime->addMinutes(10);
         }
 
-        // إرجاع البيانات بالشكل الذي تتوقعه الواجهة الأمامية لعرض المتاح والمحجوز باهتًا
         return response()->json([
             'all_slots' => $allSlots,
             'booked_slots' => $bookedAppointments
@@ -118,14 +100,12 @@ class AppointmentController extends Controller
 
             $clinicSchedules = [
                 'القوصية' => ['start' => '16:00', 'end' => '19:00'],
-                'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30'],
-                'التمساحية' => ['start' => '22:00', 'end' => '23:59'] 
+                'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30']
             ];
             
             $time = $request->appointment_time;
             $clinic = $request->clinic;
 
-            // إضافة هذا الجزء لتحويل الوقت إلى صيغة 24 ساعة قبل الفحص
             if (str_contains($time, 'م') || str_contains($time, 'ص')) {
                 $timeClean = str_replace(['م', 'ص', ' '], '', $time);
                 list($h, $m) = explode(':', $timeClean);
@@ -134,13 +114,7 @@ class AppointmentController extends Controller
                 $time = sprintf('%02d:%s', $h, $m);
             }
 
-            if ($clinic === 'التمساحية') {
-                if (($time >= '22:00' && $time <= '23:59') || $time === '00:00') {
-                    // الوقت مقبول
-                } else {
-                    return response()->json(['error' => 'الوقت المختار خارج ساعات عمل التمساحية'], 422);
-                }
-            } elseif (isset($clinicSchedules[$clinic])) {
+            if (isset($clinicSchedules[$clinic])) {
                 if ($time < $clinicSchedules[$clinic]['start'] || $time > $clinicSchedules[$clinic]['end']) {
                     return response()->json(['error' => 'الوقت المختار خارج ساعات عمل ' . $clinic], 422);
                 }
@@ -155,7 +129,6 @@ class AppointmentController extends Controller
                 return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
             }
 
-            // تحديد قيمة آمنة لنوع الحجز حتى لو لم يتم إرساله من النموذج
             $appointmentType = $request->input('booking_type', 'new');
 
             Appointment::create([
@@ -173,14 +146,12 @@ class AppointmentController extends Controller
         }
     }
 
-    // حذف الحجز
     public function destroy(int $id)
     {
         Appointment::findOrFail($id)->delete();
         return back()->with('success', 'تم حذف الحجز بنجاح');
     }
 
-    // عرض ملف المريض
     public function edit(int $id)
     {
         $appointment = Appointment::findOrFail($id);
@@ -191,13 +162,11 @@ class AppointmentController extends Controller
     {
         $appointment = Appointment::findOrFail($id);
 
-        // التحقق من وجود بيانات
         $request->validate([
             'diagnosis' => 'required', 
             'treatment' => 'required',
         ]);
 
-        // التحديث مع تغيير الحالة تلقائياً
         $appointment->update([
             'diagnosis' => $request->diagnosis,
             'treatment' => $request->treatment,
@@ -216,7 +185,6 @@ class AppointmentController extends Controller
     public function uploadImage(Request $request)
     {
         if ($request->hasFile('image')) {
-            // حفظ الصورة باسم amr.jpg في مجلد public
             $request->file('image')->move(public_path(), 'amr.jpg');
             return response()->json(['success' => true]);
         }
