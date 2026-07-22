@@ -64,7 +64,7 @@
 
                 <div class="relative">
     <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
-    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ" readonly required class="w-full p-3 pl-10 border rounded-lg bg-white cursor-pointer text-right">
+    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
     <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -159,16 +159,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-    flatpickr("#appointment_date_view", {
-        locale: "ar", // تفعيل اللغة العربية للتقويم بالكامل
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        onChange: function(selectedDates, dateStr, instance) {
-            document.getElementById('appointment_date_hidden').value = dateStr;
-            document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
-            updateSlots();
-        }
-    });
+        flatpickr("#appointment_date_view", {
+            locale: "ar",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                document.getElementById('appointment_date_hidden').value = dateStr;
+                document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
+                updateSlots();
+            }
+        });
 
         document.getElementById('clinic').addEventListener('change', updateSlots);
         
