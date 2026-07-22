@@ -158,38 +158,39 @@
         }
     }
 document.addEventListener('DOMContentLoaded', function() {
-        flatpickr("#appointment_date_view", {
-            locale: "ar",
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            onReady: function(selectedDates, dateStr, instance) {
-                convertCalendarNumbers(instance);
-            },
-            onMonthChange: function(selectedDates, dateStr, instance) {
-                convertCalendarNumbers(instance);
-            },
-            onYearChange: function(selectedDates, dateStr, instance) {
-                convertCalendarNumbers(instance);
-            },
-            onChange: function(selectedDates, dateStr, instance) {
-                document.getElementById('appointment_date_hidden').value = dateStr;
-                document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
-                updateSlots();
-            }
-        });
-
-        // دالة تحويل أرقام عناصر التقويم الداخلية فور فتحها
-        function convertCalendarNumbers(instance) {
-            setTimeout(() => {
-                if (!instance.calendarContainer) return;
-                const elements = instance.calendarContainer.querySelectorAll('.flatpickr-day, .cur-year, .numInput, .flatpickr-weekday');
-                elements.forEach(el => {
-                    if (el.textContent) {
-                        el.textContent = toArabicNumbers(el.textContent);
-                    }
-                });
-            }, 10);
+    flatpickr("#appointment_date_view", {
+        locale: "ar",
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onReady: function(selectedDates, dateStr, instance) {
+            convertCalendarNumbers(instance);
+        },
+        onMonthChange: function(selectedDates, dateStr, instance) {
+            convertCalendarNumbers(instance);
+        },
+        onYearChange: function(selectedDates, dateStr, instance) {
+            convertCalendarNumbers(instance);
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            document.getElementById('appointment_date_hidden').value = dateStr;
+            document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
+            updateSlots();
         }
+    });
+
+    // دالة تحويل أرقام عناصر التقويم الداخلية
+    function convertCalendarNumbers(instance) {
+        setTimeout(() => {
+            if (!instance.calendarContainer) return;
+            const elements = instance.calendarContainer.querySelectorAll('.flatpickr-day, .cur-year, .numInput, .flatpickr-weekday');
+            elements.forEach(el => {
+                if (el.textContent) {
+                    el.textContent = toArabicNumbers(el.textContent);
+                }
+            });
+        }, 10);
+    }
+});
 
         document.getElementById('clinic').addEventListener('change', updateSlots);
         
@@ -242,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => alert('حدث خطأ أثناء الاتصال'));
         });
-    });
+    
 </script>
 </body>
 </html>
