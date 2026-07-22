@@ -235,8 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('تم حجز الموعد بنجاح!');
-                    window.location.reload();
+                    const successMsg = document.createElement('div');
+                    successMsg.textContent = 'تم الحجز';
+                    successMsg.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#2563EB; color:white; padding:12px 24px; border-radius:8px; font-weight:bold; z-index:9999; box-shadow:0 4px 6px rgba(0,0,0,0.2);';
+                    document.body.appendChild(successMsg);
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
                 } else {
                     alert(data.error || 'حدث خطأ ما');
                 }
