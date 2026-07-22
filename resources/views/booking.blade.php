@@ -6,11 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- مكتبة الأعلام -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css"/>
     <title>حجز موعد - عيادة د. عمرو</title>
    <style>
-    :root { --iti-flag-image: url('https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/img/flags.png'); }
     body { 
         background: linear-gradient(135deg, #005c97, #363795); 
         min-height: 100vh; 
@@ -20,28 +17,6 @@
     }
     .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
     
-    .iti { width: 100%; display: block; } 
-    
-    .iti__country-list {
-        z-index: 9999 !important;
-        position: absolute;
-        text-align: right;
-        direction: ltr !important;
-        width: 300px !important;    
-        max-height: 250px !important; 
-        overflow-y: auto !important; 
-    }
-
-    .iti__search-input {
-        display: block !important;
-        width: 100% !important;
-        padding: 8px !important;
-        border: 1px solid #ccc !important;
-        border-radius: 4px !important;
-        margin-bottom: 5px !important;
-        box-sizing: border-box !important; 
-    }
-
     option:disabled {
         color: #9ca3af !important;
         background-color: #f3f4f6 !important;
@@ -71,9 +46,12 @@
 </div>
                 <input type="text" name="patient_name" id="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
                 
-                <div class="w-full">
-                    <input type="tel" id="phone" required class="w-full p-3 border rounded-lg text-right">
-                    <input type="hidden" name="full_phone" id="full_phone">
+                <!-- حقل الهاتف المصري المبسط بدون مفتاح دولة وبصيغة تبدأ بـ 0 مباشرة -->
+                <div class="relative flex items-center">
+                    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف" maxlength="11" required class="w-full p-3 pl-12 border rounded-lg text-right">
+                    <div class="absolute left-3 flex items-center pointer-events-none text-xl" title="مصر">
+                        🇪🇬
+                    </div>
                 </div>
 
                 <select name="clinic" id="clinic" required class="w-full p-3 border rounded-lg">
@@ -82,11 +60,9 @@
                     <option value="المنشأة الكبرى">المنشأة الكبرى (٧:٣٠ م - ٩:٣٠ م)</option>
                 </select>
 
-                <!-- حقل التاريخ المخفي للإرسال للسيرفر وحقل النص المرئي باللغة العربية -->
                 <div class="relative">
                     <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
-                    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ " readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
-
+                    <input type="text" id="appointment_date_view" placeholder="اختر التاريخ (السنة-الشهر-اليوم)" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
                 </div>
 
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
@@ -97,9 +73,6 @@
         </div>
     </div>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/css/intlTelInput.css">
-<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/intlTelInput.min.js"></script>
-<!-- إضافة مكتبة Flatpickr للتقويم لضمان مظهر عربي متكامل واحترافي -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
@@ -112,12 +85,6 @@
             return arabicNumbers[w];
         });
     }
-
-    const phoneInputField = document.querySelector("#phone");
-    const iti = window.intlTelInput(phoneInputField, {
-        initialCountry: "eg",
-        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@24.0.0/build/js/utils.js",
-    });
 
     function convertTo24Hour(timeString) {
         let [time, modifier] = timeString.split(' ');
@@ -185,19 +152,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // تفعيل مكتبة التقويم باللغة العربية بالكامل
         flatpickr("#appointment_date_view", {
             locale: "ar",
             dateFormat: "Y-m-d",
             minDate: "today",
             onChange: function(selectedDates, dateStr, instance) {
-                // حفظ التاريخ بالصيغة الإنجليزية في الحقل المخفي (لإرساله للسيرفر وقاعدة البيانات)
                 document.getElementById('appointment_date_hidden').value = dateStr;
-                
-                // عرض التاريخ بالأرقام العربية للمستخدم في الحقل المرئي
                 document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
-                
-                // تحديث المواعيد المتاحة
                 updateSlots();
             }
         });
@@ -206,7 +167,6 @@
         
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            document.getElementById('full_phone').value = iti.getNumber();
             
             const timeSelect = document.getElementById('appointment_time');
             let selectedOptionText = timeSelect.options[timeSelect.selectedIndex].text;
@@ -220,8 +180,6 @@
             }
             const formData = new FormData(this);
             formData.set('appointment_time', timeValue);
-            
-            // التأكد من إرسال التاريخ المخفي بالصيغة الصحيحة للسيرفر
             formData.set('appointment_date', document.getElementById('appointment_date_hidden').value);
             
             const selectedBookingType = document.querySelector('input[name="booking_type"]:checked');
