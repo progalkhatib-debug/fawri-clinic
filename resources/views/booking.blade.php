@@ -48,12 +48,13 @@
                 
                 <!-- حقل الهاتف: يمنع الحروف ويشترط 11 رقماً -->
                 <div class="relative flex items-center">
-                    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف " maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="w-full p-3 pl-12 border rounded-lg text-right">
-
-  
-                    <div class="absolute left-3 flex items-center pointer-events-none text-xl" title="مصر">
-                        🇪🇬
-                    </div>
+    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="w-full p-3 pl-24 border rounded-lg text-right">
+    
+    <div class="absolute left-3 flex items-center gap-1.5 pointer-events-none bg-gray-100 px-2 py-1 rounded border text-sm font-bold text-gray-700" title="مصر">
+        <span>EG</span>
+        <span class="text-base">🇪🇬</span>
+    </div>
+</div>
                 </div>
 
                 <select name="clinic" id="clinic" required class="w-full p-3 border rounded-lg">
@@ -64,7 +65,9 @@
 
                 <div class="relative">
                     <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
-                    <input type="text" id="appointment_date_view" placeholder="اختر التاريخ (السنة-الشهر-اليوم)" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
+                    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
+
+  
                 </div>
 
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
