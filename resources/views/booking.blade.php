@@ -85,7 +85,8 @@
                 <!-- حقل التاريخ المخفي للإرسال للسيرفر وحقل النص المرئي باللغة العربية -->
                 <div class="relative">
                     <input type="hidden" name="appointment_date" id="appointment_date_hidden" required>
-                    <input type="text" id="appointment_date_view" placeholder="اختر التاريخ (السنة-الشهر-اليوم)" readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
+                    <input type="text" id="appointment_date_view" placeholder="تحديد التاريخ " readonly required class="w-full p-3 border rounded-lg bg-white cursor-pointer">
+
                 </div>
 
                 <select name="appointment_time" id="appointment_time" required disabled class="w-full p-3 border rounded-lg bg-gray-100">
