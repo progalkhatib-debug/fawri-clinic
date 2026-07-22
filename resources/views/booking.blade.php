@@ -25,8 +25,17 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-w-5xl w-full">
-        <div class="w-full md:w-1/2 bg-blue-50 flex items-center justify-center p-2 md:p-0">
-    <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-48 md:h-full object-cover">
+       <div class="w-full md:w-1/2 bg-blue-50 flex flex-col items-center justify-between p-4">
+    <img src="{{ asset('images/amr.jpg') }}" alt="دكتور عمرو خلاف" class="w-full h-48 md:h-72 object-cover rounded-lg shadow">
+    
+    <!-- الباركود القابل للضغط -->
+    <div class="text-center my-4 bg-white p-3 rounded-xl shadow-sm border w-full">
+        <p class="text-xs text-gray-600 mb-2 font-medium">امسح الكود بالكاميرا أو اضغط عليه للحجز السريع</p>
+        <a href="https://fawri-clinic.onrender.com/booking" target="_blank" class="inline-block transition transform hover:scale-105">
+            <img src="{{ asset('images/barcode.png') }}" alt="باركود حجز عيادة د. عمرو" class="w-28 h-28 mx-auto rounded border p-1 bg-white">
+        </a>
+        <span class="block text-[11px] text-blue-600 mt-1 font-mono">dr-amrclinic.com</span>
+    </div>
 </div>
 <div class="md:w-1/2 p-3 md:p-6"> 
     
