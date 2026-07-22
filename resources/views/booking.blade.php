@@ -159,16 +159,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        flatpickr("#appointment_date_view", {
-            locale: "ar",
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            onChange: function(selectedDates, dateStr, instance) {
-                document.getElementById('appointment_date_hidden').value = dateStr;
-                document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
-                updateSlots();
-            }
-        });
+    flatpickr("#appointment_date_view", {
+        locale: "ar", // تفعيل اللغة العربية للتقويم بالكامل
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onChange: function(selectedDates, dateStr, instance) {
+            document.getElementById('appointment_date_hidden').value = dateStr;
+            document.getElementById('appointment_date_view').value = toArabicNumbers(dateStr);
+            updateSlots();
+        }
+    });
 
         document.getElementById('clinic').addEventListener('change', updateSlots);
         
