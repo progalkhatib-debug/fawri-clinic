@@ -46,9 +46,9 @@
 </div>
                 <input type="text" name="patient_name" id="patient_name" placeholder="اسم المريض" required class="w-full p-3 border rounded-lg">
                 
-                <!-- حقل الهاتف المصري المبسط بدون مفتاح دولة وبصيغة تبدأ بـ 0 مباشرة -->
+                <!-- حقل الهاتف: يمنع الحروف ويشترط 11 رقماً -->
                 <div class="relative flex items-center">
-                    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف" maxlength="11" required class="w-full p-3 pl-12 border rounded-lg text-right">
+                    <input type="tel" name="full_phone" id="phone" placeholder="أدخل رقم الهاتف (11 رقم)" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required class="w-full p-3 pl-12 border rounded-lg text-right">
                     <div class="absolute left-3 flex items-center pointer-events-none text-xl" title="مصر">
                         🇪🇬
                     </div>
@@ -167,6 +167,14 @@
         
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // التحقق من أن رقم الهاتف مكون من 11 رقماً بالضبط قبل الإرسال
+            const phoneVal = document.getElementById('phone').value;
+            if (phoneVal.length !== 11) {
+                alert('يرجى التأكد من إدخال رقم الهاتف بشكل صحيح (11 رقماً).');
+                document.getElementById('phone').focus();
+                return;
+            }
             
             const timeSelect = document.getElementById('appointment_time');
             let selectedOptionText = timeSelect.options[timeSelect.selectedIndex].text;
