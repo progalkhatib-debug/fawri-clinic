@@ -188,13 +188,13 @@
     }
   
     // تحديث جدول الحجوزات تلقائياً كل 3 ثوانٍ بدون إعادة تحميل الصفحة بالكامل
-    setInterval(function() {
+   setInterval(function() {
         const searchInput = document.querySelector('input[name="search"]');
         if (searchInput && searchInput === document.activeElement) {
-            return; // لو الدكتور بيكتب في البحث، ميعملش تحديث عشان ميكتبش فوقه
+            return; // لو الدكتور بيكتب في خانة البحث، متحدثش عشان ميكتبش فوقه
         }
 
-        // جلب البيانات في الخلفية وتحديث محتوى الجدول فقط
+        // جلب الصفحة في الخلفية وتحديث محتوى الجدول فقط
         fetch(window.location.href)
             .then(response => response.text())
             .then(html => {
