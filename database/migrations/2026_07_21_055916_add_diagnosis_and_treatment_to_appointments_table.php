@@ -27,13 +27,17 @@ return new class extends Migration
             if (!Schema::hasColumn('appointments', 'status')) {
                 $table->string('status')->default('pending');
             }
+            // إضافة عمود صورة الروشتة بصيغة longText ليتوافق مع تخزين الصور كـ Base64 بدون أخطاء
+            if (!Schema::hasColumn('appointments', 'prescription_image')) {
+                $table->longText('prescription_image')->nullable();
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->dropColumn(['clinic', 'booking_type', 'diagnosis', 'treatment', 'status']);
+            $table->dropColumn(['clinic', 'booking_type', 'diagnosis', 'treatment', 'status', 'prescription_image']);
         });
     }
 };
