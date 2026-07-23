@@ -186,13 +186,30 @@
             });
         }
     }
+  
+    // تحديث جدول الحجوزات تلقائياً كل 3 ثوانٍ بدون إعادة تحميل الصفحة بالكامل
     setInterval(function() {
         const searchInput = document.querySelector('input[name="search"]');
         if (searchInput && searchInput === document.activeElement) {
-            return; 
+            return; // لو الدكتور بيكتب في البحث، ميعملش تحديث عشان ميكتبش فوقه
         }
-        location.reload();
-    }, 3000); 
+
+        // جلب البيانات في الخلفية وتحديث محتوى الجدول فقط
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, 'html');
+                let newTable = doc.querySelector('table');
+                let currentTable = document.querySelector('table');
+                
+                if (newTable && currentTable) {
+                    currentTable.innerHTML = newTable.innerHTML;
+                }
+            })
+            .catch(error => console.log('Error updating table:', error));
+    }, 3000);
+
 </script>
 </body>
 </html>
