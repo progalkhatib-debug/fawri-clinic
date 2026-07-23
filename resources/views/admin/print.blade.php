@@ -28,7 +28,7 @@
         <hr>
         <div class="field" style="text-align: center;">
             <span class="label">صورة الروشتة الطبية المرفقة:</span><br>
-            <img src="{{ asset($appointment->prescription_image) }}" alt="الروشتة الطبية" class="prescription-img">
+            <img src="{{ asset('storage/' . $appointment->prescription_image) }}" alt="الروشتة الطبية" class="prescription-img">
         </div>
     @endif
 </body>

@@ -158,7 +158,7 @@ class AppointmentController extends Controller
         return view('admin.edit', compact('appointment')); 
     }
     
-  public function update(Request $request, int $id)
+ public function update(Request $request, int $id)
     {
         $appointment = Appointment::findOrFail($id);
 
@@ -174,22 +174,10 @@ class AppointmentController extends Controller
             'status'    => 'completed', 
         ];
 
-        // حفظ الصورة مباشرة في مجلد public لضمان عدم حذفها على Render
+        // استخدام التخزين الآمن المدمج لمنع أخطاء الصلاحيات 500 على Render
         if ($request->hasFile('prescription_image')) {
-            $file = $request->file('prescription_image');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            
-            // التأكد من وجود مجلد prescriptions وإنشاؤه إن لم يكن موجوداً لمنع خطأ السيرفر
-            $destinationPath = public_path('prescriptions');
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-            
-            // نقل الصورة مباشرة إلى مجلد public/prescriptions
-            $file->move($destinationPath, $filename);
-            
-            // تخزين المسار النسبي في قاعدة البيانات
-            $data['prescription_image'] = 'prescriptions/' . $filename;
+            $path = $request->file('prescription_image')->store('prescriptions', 'public');
+            $data['prescription_image'] = $path;
         }
 
         $appointment->update($data);
