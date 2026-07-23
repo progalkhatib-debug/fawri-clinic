@@ -50,7 +50,8 @@
 
             @if(isset($appointment) && $appointment->prescription_image)
                 <div class="mt-3">
-                    <a href="{{ asset('storage/' . $appointment->prescription_image) }}" target="_blank" class="text-blue-600 font-bold underline text-sm inline-flex items-center gap-1">
+                    <!-- تم تعديل الرابط هنا ليزيل كلمة storage لأن الحفظ أصبح مباشراً في public -->
+                    <a href="{{ asset($appointment->prescription_image) }}" target="_blank" class="text-blue-600 font-bold underline text-sm inline-flex items-center gap-1">
                         📄 عرض الروشتة المرفوعة مسبقاً
                     </a>
                 </div>
