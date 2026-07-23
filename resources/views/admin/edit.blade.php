@@ -43,8 +43,11 @@
         <!-- خانة رفع صورة الروشتة -->
         <div class="mb-6">
             <label class="block mb-2 font-bold text-gray-700">صورة الروشتة الطبية (تصوير مباشر أو اختيار ملف):</label>
-            <input type="file" name="prescription_image" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg bg-white cursor-pointer">
+            <input type="file" name="prescription_image" id="prescriptionInput" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg bg-white cursor-pointer" onchange="showFileName(this)">
             
+            <!-- عنصر عرض اسم الملف المختار -->
+            <div id="file-name-display" class="mt-2 text-sm font-medium"></div>
+
             @if(isset($appointment) && $appointment->prescription_image)
                 <div class="mt-3">
                     <a href="{{ asset('storage/' . $appointment->prescription_image) }}" target="_blank" class="text-blue-600 font-bold underline text-sm inline-flex items-center gap-1">
@@ -61,6 +64,15 @@
         <a href="{{ url('/admin') }}" class="block text-center mt-4 text-gray-500 hover:underline">العودة للقائمة</a>
     </form>
 </div>
+
+<script>
+    function showFileName(input) {
+        const display = document.getElementById('file-name-display');
+        if (input.files && input.files[0]) {
+            display.innerHTML = `<span class="text-purple-600 font-bold">📁 تم اختيار الملف:</span> ${input.files[0].name}`;
+        }
+    }
+</script>
 
 </body>
 </html>

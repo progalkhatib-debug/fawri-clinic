@@ -8,6 +8,7 @@
         .report-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 30px; }
         .field { margin-bottom: 15px; }
         .label { font-weight: bold; }
+        .prescription-img { max-width: 100%; height: auto; max-height: 400px; display: block; margin: 15px auto; border: 1px solid #ccc; border-radius: 5px; }
     </style>
 </head>
 <body onload="window.print()">
@@ -21,5 +22,14 @@
     <hr>
     <div class="field"><span class="label">التشخيص:</span><br>{{ $appointment->diagnosis }}</div>
     <div class="field"><span class="label">العلاج:</span><br>{{ $appointment->treatment }}</div>
+
+    <!-- عرض صورة الروشتة المرفقة في الطباعة -->
+    @if(isset($appointment) && $appointment->prescription_image)
+        <hr>
+        <div class="field" style="text-align: center;">
+            <span class="label">صورة الروشتة الطبية المرفقة:</span><br>
+            <img src="{{ asset('storage/' . $appointment->prescription_image) }}" alt="الروشتة الطبية" class="prescription-img">
+        </div>
+    @endif
 </body>
 </html>
