@@ -23,12 +23,12 @@
     <div class="field"><span class="label">التشخيص:</span><br>{{ $appointment->diagnosis }}</div>
     <div class="field"><span class="label">العلاج:</span><br>{{ $appointment->treatment }}</div>
 
-    <!-- عرض صورة الروشتة المرفقة في الطباعة -->
+    <!-- عرض صورة الروشتة المرفقة في الطباعة (تم تعديل الرابط ليتوافق مع التخزين المباشر) -->
     @if(isset($appointment) && $appointment->prescription_image)
         <hr>
         <div class="field" style="text-align: center;">
             <span class="label">صورة الروشتة الطبية المرفقة:</span><br>
-            <img src="{{ asset('storage/' . $appointment->prescription_image) }}" alt="الروشتة الطبية" class="prescription-img">
+            <img src="{{ asset($appointment->prescription_image) }}" alt="الروشتة الطبية" class="prescription-img">
         </div>
     @endif
 </body>

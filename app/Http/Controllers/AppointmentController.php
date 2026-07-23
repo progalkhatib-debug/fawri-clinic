@@ -163,9 +163,9 @@ class AppointmentController extends Controller
         $appointment = Appointment::findOrFail($id);
 
         $request->validate([
-            'diagnosis' => 'nullable|string', // خليناها nullable عشان لو رفع صورة ومش كتب نص
+            'diagnosis' => 'nullable|string', 
             'treatment' => 'nullable|string',
-            'prescription_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // التحقق من صحة الصورة
+            'prescription_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $data = [
@@ -174,10 +174,16 @@ class AppointmentController extends Controller
             'status'    => 'completed', 
         ];
 
-        // لو الدكتور رفع صورة روشتة جديدة
+        // حفظ الصورة مباشرة في مجلد public لضمان عدم حذفها على Render
         if ($request->hasFile('prescription_image')) {
-            $path = $request->file('prescription_image')->store('prescriptions', 'public');
-            $data['prescription_image'] = $path;
+            $file = $request->file('prescription_image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            
+            // نقل الصورة مباشرة إلى مجلد public/prescriptions
+            $file->move(public_path('prescriptions'), $filename);
+            
+            // تخزين المسار النسبي في قاعدة البيانات
+            $data['prescription_image'] = 'prescriptions/' . $filename;
         }
 
         $appointment->update($data);
