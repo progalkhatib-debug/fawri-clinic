@@ -179,8 +179,14 @@ class AppointmentController extends Controller
             $file = $request->file('prescription_image');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             
+            // التأكد من وجود مجلد prescriptions وإنشاؤه إن لم يكن موجوداً لمنع خطأ السيرفر
+            $destinationPath = public_path('prescriptions');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
             // نقل الصورة مباشرة إلى مجلد public/prescriptions
-            $file->move(public_path('prescriptions'), $filename);
+            $file->move($destinationPath, $filename);
             
             // تخزين المسار النسبي في قاعدة البيانات
             $data['prescription_image'] = 'prescriptions/' . $filename;
