@@ -46,7 +46,6 @@ class AppointmentController extends Controller
             ]);
         }
         
-        // تم حذف عيادة التتمساحية وبقي القوصية والمنشأة الكبرى فقط
         $clinicSchedules = [
             'القوصية' => ['start' => '16:00', 'end' => '19:00'],
             'المنشأة الكبرى' => ['start' => '19:30', 'end' => '21:30']
@@ -122,8 +121,8 @@ class AppointmentController extends Controller
 
             $fullDateTime = $request->appointment_date . ' ' . $time;
             $exists = Appointment::where('date_time', $fullDateTime)
-                                 ->where('clinic', $clinic)
-                                 ->exists();
+                                   ->where('clinic', $clinic)
+                                   ->exists();
 
             if ($exists) {
                 return response()->json(['error' => 'عذراً، هذا الموعد محجوز بالفعل.'], 422);
@@ -158,14 +157,14 @@ class AppointmentController extends Controller
         return view('admin.edit', compact('appointment')); 
     }
     
- public function update(Request $request, int $id)
+    public function update(Request $request, int $id)
     {
         $appointment = Appointment::findOrFail($id);
 
         $request->validate([
             'diagnosis' => 'nullable|string', 
             'treatment' => 'nullable|string',
-            'prescription_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'prescription_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $data = [
@@ -174,16 +173,19 @@ class AppointmentController extends Controller
             'status'    => 'completed', 
         ];
 
-        // استخدام التخزين الآمن المدمج لمنع أخطاء الصلاحيات 500 على Render
+        // تحويل الصورة المرفوعة إلى Base64 وحفظها مباشرة داخل قاعدة البيانات لتجنب مشاكل التخزين المؤقت
         if ($request->hasFile('prescription_image')) {
-            $path = $request->file('prescription_image')->store('prescriptions', 'public');
-            $data['prescription_image'] = $path;
+            $file = $request->file('prescription_image');
+            $imageData = base64_encode(file_get_contents($file->getRealPath()));
+            $src = 'data:image/' . $file->getClientOriginalExtension() . ';base64,' . $imageData;
+            $data['prescription_image'] = $src;
         }
 
         $appointment->update($data);
 
         return redirect()->route('admin.index')->with('success', 'تم حفظ الحالة بنجاح');
     }
+
     public function print(int $id)
     {
         $appointment = Appointment::findOrFail($id);
