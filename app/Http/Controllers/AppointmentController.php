@@ -158,24 +158,32 @@ class AppointmentController extends Controller
         return view('admin.edit', compact('appointment')); 
     }
     
-    public function update(Request $request, int $id)
+  public function update(Request $request, int $id)
     {
         $appointment = Appointment::findOrFail($id);
 
         $request->validate([
-            'diagnosis' => 'required', 
-            'treatment' => 'required',
+            'diagnosis' => 'nullable|string', // خليناها nullable عشان لو رفع صورة ومش كتب نص
+            'treatment' => 'nullable|string',
+            'prescription_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // التحقق من صحة الصورة
         ]);
 
-        $appointment->update([
+        $data = [
             'diagnosis' => $request->diagnosis,
             'treatment' => $request->treatment,
             'status'    => 'completed', 
-        ]);
+        ];
+
+        // لو الدكتور رفع صورة روشتة جديدة
+        if ($request->hasFile('prescription_image')) {
+            $path = $request->file('prescription_image')->store('prescriptions', 'public');
+            $data['prescription_image'] = $path;
+        }
+
+        $appointment->update($data);
 
         return redirect()->route('admin.index')->with('success', 'تم حفظ الحالة بنجاح');
     }
-
     public function print(int $id)
     {
         $appointment = Appointment::findOrFail($id);

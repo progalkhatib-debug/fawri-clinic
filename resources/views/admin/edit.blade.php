@@ -25,7 +25,8 @@
         <p><strong>العيادة:</strong> {{ $appointment->clinic }}</p>
     </div>
 
-    <form action="{{ route('appointments.update', $appointment->id) }}" method="POST">
+    <!-- تم إضافة enctype لرفع الملفات والصور -->
+    <form action="{{ route('appointments.update', $appointment->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -34,12 +35,26 @@
             <textarea name="diagnosis" rows="4" class="w-full p-2 border rounded" placeholder="اكتب تشخيص الحالة هنا...">{{ $appointment->diagnosis }}</textarea>
         </div>
 
-        <div class="mb-6">
+        <div class="mb-4">
             <label class="block mb-2 font-bold">العلاج الموصوف:</label>
             <textarea name="treatment" rows="4" class="w-full p-2 border rounded" placeholder="اكتب الأدوية أو التعليمات هنا...">{{ $appointment->treatment }}</textarea>
         </div>
 
-        <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        <!-- خانة رفع صورة الروشتة -->
+        <div class="mb-6">
+            <label class="block mb-2 font-bold text-gray-700">صورة الروشتة الطبية (تصوير مباشر أو اختيار ملف):</label>
+            <input type="file" name="prescription_image" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg bg-white cursor-pointer">
+            
+            @if(isset($appointment) && $appointment->prescription_image)
+                <div class="mt-3">
+                    <a href="{{ asset('storage/' . $appointment->prescription_image) }}" target="_blank" class="text-blue-600 font-bold underline text-sm inline-flex items-center gap-1">
+                        📄 عرض الروشتة المرفوعة مسبقاً
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-bold">
             حفظ الحالة الطبية
         </button>
         
